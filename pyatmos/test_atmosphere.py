@@ -353,24 +353,42 @@ class TestAtm(unittest.TestCase):
 
     def test_sweep(self):
         """tests FLFACT sweeps"""
-        mach = 0.8
-        alts = np.linspace(-10000, 80000.)
-        rho, mach, vel = make_flfacts_alt_sweep(
+        mach = 0.1
+        alts = np.linspace(60000., 80000.)
+        alt, rho, mach, vel, eas = make_flfacts_alt_sweep(
             mach, alts, eas_limit=300., alt_units='m',
             velocity_units='m/s',
             density_units='kg/m^3',
             eas_units='m/s')
-        del rho, mach, vel, alts
+        del alt, rho, mach, vel, eas
+
+        mach = 0.1
+        alt, rho, mach, vel, eas = make_flfacts_alt_sweep(
+            mach, alts, eas_limit=None, alt_units='m',
+            velocity_units='m/s',
+            density_units='kg/m^3',
+            eas_units='m/s')
+        assert eas is None, eas
+        del alt, rho, mach, vel, eas, alts
+
+        mach = 0.8
+        alts = np.linspace(-10000, 80000.)
+        alt, rho, mach, vel, eas = make_flfacts_alt_sweep(
+            mach, alts, eas_limit=300., alt_units='m',
+            velocity_units='m/s',
+            density_units='kg/m^3',
+            eas_units='m/s')
+        del alt, rho, mach, vel, eas, alts
 
         alt = 10000.
         machs = np.linspace(0., 0.8)
-        rho, mach, vel = make_flfacts_mach_sweep(
+        alt, rho, mach, vel, eas = make_flfacts_mach_sweep(
             alt, machs, eas_limit=300.,
             alt_units='m',
             velocity_units='m/s',
             density_units='kg/m^3',
             eas_units='m/s')
-        del rho, mach, vel, alt
+        del alt, rho, mach, vel, eas
 
         alt = 0.
         machs = np.linspace(0.6, 0.8)
@@ -385,11 +403,11 @@ class TestAtm(unittest.TestCase):
 
         alt = 10000.
         eass = np.linspace(0., 300.)
-        rho, mach, vel = make_flfacts_eas_sweep(
+        alt, rho, mach, vel, eas = make_flfacts_eas_sweep(
             alt, eass, alt_units='m',
             velocity_units='m/s', density_units='kg/m^3',
             eas_units='m/s')
-        del rho, mach, vel, alt
+        del alt, rho, mach, vel, eas
 
 
 if __name__ == "__main__":  # pragma: no cover
