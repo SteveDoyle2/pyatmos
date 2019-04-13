@@ -2,7 +2,7 @@
 import unittest
 import numpy as np
 
-from atmos import (
+from pyatmos import (
     atm_density, atm_dynamic_pressure, atm_temperature,
     atm_pressure, atm_velocity, atm_mach, atm_equivalent_airspeed,
     atm_dynamic_viscosity_mu, atm_kinematic_viscosity_nu,
@@ -390,6 +390,7 @@ class TestAtm(unittest.TestCase):
             velocity_units='m/s', density_units='kg/m^3',
             eas_units='m/s')
         del rho, mach, vel, alt
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
