@@ -15,7 +15,8 @@ Buyer beware!
 """
 from __future__ import print_function, absolute_import
 import  numpy as np
-from .atmosphere import atm_pressure_array, atm_temperature_array, atm_density, atm_speed_of_sound
+from .atmosphere import atm_density, atm_speed_of_sound
+from .atmosphere_vectorized import atm_pressure_array, atm_temperature_array
 from .unit_conversion import _altitude_factor, _velocity_factor, _density_factor
 
 

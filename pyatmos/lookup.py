@@ -36,7 +36,7 @@ def get_alt_for_density(density, density_units='slug/ft^3', alt_units='ft', nmax
         the altitude in feet
     """
     tol = convert_altitude(tol, alt_units, 'ft')
-    dalt = 500. # ft
+    dalt = tol  # ft
     alt_old = 0.
     alt_final = 5000.
     n = 0
@@ -44,8 +44,7 @@ def get_alt_for_density(density, density_units='slug/ft^3', alt_units='ft', nmax
     #density_scale = _density_factor(density_units, "slug/ft^3")
 
     # Newton's method
-    alt_error = alt_final - alt_old
-    while abs(alt_error) > tol and n < nmax:
+    while abs(alt_final - alt_old) > tol and n < nmax:
         alt_old = alt_final
         alt1 = alt_old
         alt2 = alt_old + dalt
@@ -53,15 +52,10 @@ def get_alt_for_density(density, density_units='slug/ft^3', alt_units='ft', nmax
         rho2 = atm_density(alt2, density_units=density_units)
         m = dalt / (rho2 - rho1)
         alt_final = m * (density - rho1) + alt1
-        alt_error = alt_final - alt_old
-        if dalt == 500. and abs(alt_error) < tol:
-            alt_error = tol + 1. #  faking
-            # get close using a large dalt and then lower dalt
-            dalt = tol / 2.
         n += 1
     if abs(alt_final - alt_old) > tol:
         raise RuntimeError('Did not converge; Check your units; n=nmax=%s\n'
-                           'target alt=%s alt_current=%s' % (nmax, alt_final, alt1))
+                           'target alt=%s alt_current=%s (ft)' % (nmax, alt_final, alt1))
     alt_out = convert_altitude(alt_final, 'ft', alt_units)
     return alt_out
 
@@ -92,21 +86,28 @@ def get_alt_for_eas_with_constant_mach(equivalent_airspeed, mach,
     """
     equivalent_airspeed = convert_velocity(equivalent_airspeed, velocity_units, 'ft/s')
     tol = convert_altitude(tol, alt_units, 'ft')
-    dalt = 500.
+    dalt = tol  # ft
     alt_old = 0.
     alt_final = 5000.
     n = 0
 
+    gamma = 1.4
     R = 1716.
     z0 = 0.
     T0 = atm_temperature(z0)
     p0 = atm_pressure(z0)
-    k = np.sqrt(T0 / p0)
-    #eas = a * mach * sqrt((p * T0) / (T * p0)) = a * mach * sqrt(p / T) * k
+
+    #eas = a * mach * sqrt((p * T0) / (T * p0))
+    #    = sqrt(gamma * R * T) * mach * sqrt(T0 / p0) * sqrt(p / T)
+    #    = sqrt(gamma * R) * mach * sqrt(T0 / p0) * sqrt(T) * sqrt(p / T)
+    #    = sqrt(gamma * R * T0 / p0) * mach * sqrt(p)
+    #    = k * sqrt(p)
+    # rho0 = p0 / (R * T0)
+    # k = sqrt(gamma / rho0) * mach
+    k = np.sqrt(gamma * R * T0 / p0) * mach
 
     # Newton's method
-    alt_error = alt_final - alt_old
-    while abs(alt_error) > tol and n < nmax:
+    while abs(alt_final - alt_old) > tol and n < nmax:
         alt_old = alt_final
         alt1 = alt_old
         alt2 = alt_old + dalt
@@ -114,17 +115,10 @@ def get_alt_for_eas_with_constant_mach(equivalent_airspeed, mach,
         T2 = atm_temperature(alt2)
         press1 = atm_pressure(alt1)
         press2 = atm_pressure(alt2)
-        sos1 = np.sqrt(1.4 * R * T1)
-        sos2 = np.sqrt(1.4 * R * T2)
-        eas1 = sos1 * mach * np.sqrt(press1 / T1) * k
-        eas2 = sos2 * mach * np.sqrt(press2 / T2) * k
+        eas1 = k * np.sqrt(press1)
+        eas2 = k * np.sqrt(press2)
         m = dalt / (eas2 - eas1)
         alt_final = m * (equivalent_airspeed - eas1) + alt1
-        alt_error = alt_final - alt_old
-        if dalt == 500. and abs(alt_error) < tol:
-            alt_error = tol + 1. #  faking
-            # get close using a large dalt and then lower dalt
-            dalt = tol / 2.
         n += 1
 
     if n > nmax - 1:
@@ -190,15 +184,13 @@ def get_alt_for_pressure(pressure, pressure_units='psf', alt_units='ft', nmax=20
     """
     pressure = convert_pressure(pressure, pressure_units, 'psf')
     tol = convert_altitude(tol, alt_units, 'ft')
-    dalt = 500.
+    dalt = tol  # ft
     alt_old = 0.
     alt_final = 5000.
     n = 0
 
     # Newton's method
-    print('--------------')
-    alt_error = alt_final - alt_old
-    while abs(alt_error) > tol and n < nmax:
+    while abs(alt_final - alt_old) > tol and n < nmax:
         alt_old = alt_final
         alt1 = alt_old
         alt2 = alt_old + dalt
@@ -206,18 +198,13 @@ def get_alt_for_pressure(pressure, pressure_units='psf', alt_units='ft', nmax=20
         press2 = atm_pressure(alt2)
         m = dalt / (press2 - press1)
         alt_final = m * (pressure - press1) + alt1
-        alt_error = alt_final - alt_old
-        if dalt == 500. and abs(alt_error) < tol:
-            alt_error = tol + 1. #  faking
-            # get close using a large dalt and then lower dalt
-            dalt = tol / 2.
         n += 1
 
     if n > nmax - 1:
         print('n = %s' % n)
     #if abs(alt_final - alt_old) > tol:
         #raise RuntimeError('Did not converge; Check your units; n=nmax=%s\n'
-                           #'target alt=%s alt_current=%s' % (nmax, alt_final, alt1))
+                           #'target alt=%s alt_current=%s (ft)' % (nmax, alt_final, alt1))
 
     alt_final = convert_altitude(alt_final, 'ft', alt_units)
     return alt_final

@@ -19,6 +19,7 @@ import sys
 from math import log, exp
 import numpy as np
 
+from .unitless import speed_of_sound
 from .unit_conversion import  (
     convert_altitude, convert_density, convert_pressure, convert_velocity,
     _altitude_factor, _temperature_factor, _pressure_factor, _velocity_factor, _density_factor,
@@ -208,22 +209,6 @@ def atm_speed_of_sound(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4):
     a2 = a * factor
     return a2
 
-def speed_of_sound(T, R=1716., gamma=1.4):
-    """
-    Calculates the speed of sound without units
-
-    Parameters
-    ----------
-    T : float, np.ndarray
-        the temperature
-    R : float; default=1716.0
-        1716.59, dir air, R=287.04 J/kg*K
-    gamma : float; default=1.4
-        the ratio of Cp/Cv
-    """
-    a = (gamma * R * T) ** 0.5
-    return a
-
 def atm_velocity(alt, mach, alt_units='ft', velocity_units='ft/s'):
     # type : (float, float, str, str) -> float
     r"""
@@ -282,17 +267,21 @@ def atm_equivalent_airspeed(alt, mach, alt_units='ft', eas_units='ft/s'):
 
     """
     z = convert_altitude(alt, alt_units, 'ft')
-    a = atm_speed_of_sound(z)
-    #V = mach * a # units=ft/s or m/s
-
     z0 = 0.
     T0 = atm_temperature(z0)
     p0 = atm_pressure(z0)
-
-    T = atm_temperature(z)
     p = atm_pressure(z)
 
-    eas = a * mach * np.sqrt((p * T0) / (T * p0))
+    gamma = 1.4
+    R = 1716.
+    #eas = a * mach * sqrt((p * T0) / (T * p0))
+    #    = sqrt(gamma * R * T) * mach * sqrt(T0 / p0) * sqrt(p / T)
+    #    = sqrt(gamma * R) * mach * sqrt(T0 / p0) * sqrt(T) * sqrt(p / T)
+    #    = sqrt(gamma * R * T0 / p0) * mach * sqrt(p)
+    #    = k * sqrt(p)
+    # rho0 = p0 / (R * T0)
+    # k = sqrt(gamma / rho0) * mach
+    eas = np.sqrt(gamma * R * T0 / p0) * mach * p ** 0.5
     eas2 = convert_velocity(eas, 'ft/s', eas_units)
     return eas2
 
@@ -461,11 +450,15 @@ def atm_unit_reynolds_number2(alt, mach, alt_units='ft', reynolds_units='1/ft'):
     R = 1716.
     p = atm_pressure(z)
     T = atm_temperature(z)
-    #p = rhoRT
-    a = (gamma * R * T) ** 0.5
     mu = sutherland_viscoscity(T)
-    ReL = p * a * mach / (mu * R * T)
-
+    #p = rho * R * T
+    #a = (gamma * R * T) ** 0.5
+    #
+    # ReL = p * a * mach / (mu * R * T)
+    #     = p * sqrt(gamma * R * T) * mach / (mu * R * T)
+    #     = (p * mach / mu) * sqrt(gamma * R * T) / (R * T)
+    #     = (p * mach / mu) * sqrt(gamma / (R * T))
+    ReL = (p * mach / mu) * (gamma / (R * T)) ** 0.5
     ReL *= _reynolds_factor('1/ft', reynolds_units)
     return ReL
 
@@ -499,7 +492,6 @@ def atm_unit_reynolds_number(alt, mach, alt_units='ft', reynolds_units='1/ft'):
     mu = atm_dynamic_viscosity_mu(z)
 
     ReL = (rho * V) / mu
-
     ReL *= _reynolds_factor('1/ft', reynolds_units)
     return ReL
 
@@ -531,22 +523,8 @@ def sutherland_viscoscity(T):
         viscosity = 8.0382436E-10 * T
     else:
         if T > 5400.:
-            msg = "WARNING:  viscosity - Temperature is too large (T>5400 R) T=%s\n" % T
-            sys.stderr.write(msg)
+            sys.stderr.write('WARNING:  viscosity - Temperature is too large '
+                             '(T>5400 R) T=%s\n' % T)
         viscosity = 2.27E-8 * (T ** 1.5) / (T + 198.6)
     return viscosity
 
-def atm_pressure_array(alts, alt_units='ft', pressure_units='psf'):
-    #press_psf = np.array([atm_pressure(alti, alt_units=alt_units, pressure_units='psf')
-                          #for alti in alts])
-    alts_ft = alts * _altitude_factor(alt_units, 'ft')
-
-    ln_pressure = np.array([_log_pressure(alt) for alt in alts_ft])
-    press_psf = np.exp(ln_pressure)
-
-    return press_psf * _pressure_factor('psf', pressure_units)
-
-def atm_temperature_array(alts, alt_units='ft', temperature_units='R'):
-    temp_rankine = np.array([atm_temperature(alti, alt_units=alt_units, temperature_units='R')
-                             for alti in alts])
-    return temp_rankine * _temperature_factor('R', temperature_units)

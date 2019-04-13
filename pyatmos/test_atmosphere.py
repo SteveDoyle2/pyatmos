@@ -13,6 +13,11 @@ from pyatmos import (
     make_alt_sweep, make_mach_sweep,
     make_eas_sweep,
 )
+#from .atmosphere_vectorized import (
+    #atm_temperature_array, atm_pressure_array,
+    #atm_speed_of_sound_array, atm_density_array,
+    #atm_dynamic_viscosity_mu_array, atm_kinematic_viscosity_nu_array,
+#)
 
 
 class TestAtm(unittest.TestCase):
