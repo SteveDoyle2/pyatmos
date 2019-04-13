@@ -65,10 +65,10 @@ install:
   # if line per https://docs.travis-ci.com/user/multi-os/
   - echo "python version=$TRAVIS_PYTHON_VERSION"
 
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]];     then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]];     then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]];     then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "nightly" ]]; then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]];     then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION atlas numpy; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]];     then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION atlas numpy; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]];     then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION atlas numpy; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "nightly" ]]; then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION atlas numpy; fi
   - source activate test-environment
   - conda list
   - python setup.py develop
