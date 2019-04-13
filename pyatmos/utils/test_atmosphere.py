@@ -13,11 +13,12 @@ from pyatmos import (
     make_alt_sweep, make_mach_sweep,
     make_eas_sweep,
 )
-#from .atmosphere_vectorized import (
-    #atm_temperature_array, atm_pressure_array,
-    #atm_speed_of_sound_array, atm_density_array,
-    #atm_dynamic_viscosity_mu_array, atm_kinematic_viscosity_nu_array,
-#)
+from pyatmos.utils.atmosphere_vectorized import (
+    atm_temperature_array, atm_pressure_array,
+    atm_speed_of_sound_array, atm_density_array,
+    atm_dynamic_viscosity_mu_array, atm_kinematic_viscosity_nu_array,
+    atm_equivalent_airspeed_array,
+)
 
 
 class TestAtm(unittest.TestCase):
@@ -71,6 +72,19 @@ class TestAtm(unittest.TestCase):
         self.assertEqual(atm_pressure(alt=270, **units), 0.017353278750799964)
         self.assertEqual(atm_pressure(alt=350, **units), 0.00028114006933161638)
 
+        alts = np.array([10, 60, 120, 165, 230, 270, 350], dtype='float64')
+        expecteds_pressure = np.array([
+            1456.3074319943232,
+            151.20878913237249,
+            9.8627955961437763,
+            1.7725806687593277,
+            0.13023784776280109,
+            0.017353278750799964,
+            0.00028114006933161638,
+        ])
+        actual = atm_pressure_array(alts, **units)
+        assert np.allclose(actual, expecteds_pressure), actual - expecteds_pressure
+
         self.assertEqual(
             atm_pressure(alt=0., alt_units='m', pressure_units='Pa'),
             101325.20482878872)
@@ -90,7 +104,7 @@ class TestAtm(unittest.TestCase):
             'alt_units' : 'ft',
             'visc_units' : '(lbf*s)/ft^2',
         }
-        self.assertEqual(atm_dynamic_viscosity_mu(alt=0., **units), 3.7345965612371534e-07)
+        self.assertEqual(atm_dynamic_viscosity_mu(alt=0., **units),        3.7345965612371534e-07)
         self.assertEqual(atm_dynamic_viscosity_mu(alt=10 *1000., **units), 3.5317481186391660e-07)
         self.assertEqual(atm_dynamic_viscosity_mu(alt=60 *1000., **units), 2.9702384755729678e-07)
         self.assertEqual(atm_dynamic_viscosity_mu(alt=120*1000., **units), 3.3485025784164385e-07)
@@ -98,6 +112,20 @@ class TestAtm(unittest.TestCase):
         self.assertEqual(atm_dynamic_viscosity_mu(alt=230*1000., **units), 2.9969664628998927e-07)
         self.assertEqual(atm_dynamic_viscosity_mu(alt=270*1000., **units), 2.7383347922674784e-07)
         self.assertEqual(atm_dynamic_viscosity_mu(alt=350*1000., **units), 2.7383347922674784e-07)
+
+        alts = np.array([0., 10, 60, 120, 165, 230, 270, 350], dtype='float64') * 1000.
+        expecteds_mu = np.array([
+            3.7345965612371534e-07,
+            3.5317481186391660e-07,
+            2.9702384755729678e-07,
+            3.3485025784164385e-07,
+            3.6827603483595828e-07,
+            2.9969664628998927e-07,
+            2.7383347922674784e-07,
+            2.7383347922674784e-07,
+        ])
+        actual = atm_dynamic_viscosity_mu_array(alts, **units)
+        assert np.allclose(actual, expecteds_mu), max(actual - expecteds_mu)
 
         units = {
             'alt_units' : 'kft',
@@ -222,6 +250,12 @@ class TestAtm(unittest.TestCase):
         alt = 10000.
         veq2 = atm_equivalent_airspeed(alt, mach, alt_units='ft', eas_units='ft/s')
         assert np.allclose(veq2, 925.407847794747)
+
+        alts = np.array([0., 10000.])
+        machs = np.array([1., 1.])
+        expected_eass = [1115.5461442719434, 925.407847794747]
+        eass = atm_equivalent_airspeed_array(alts, machs, alt_units='ft', eas_units='ft/s')
+        assert np.allclose(eass, expected_eass)
 
         veq3 = atm_equivalent_airspeed(alt/1000., mach, alt_units='kft', eas_units='ft/s')
         assert np.allclose(veq2, veq3)
