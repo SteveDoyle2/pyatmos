@@ -96,7 +96,8 @@ def atm_pressure(alt, alt_units='ft', pressure_units='psf'):
         Returns pressure in pressure_units
 
     .. note ::
-        from BAC-7006-3352-001-V1.pdf  # Bell Handbook of Aerodynamic Heating\n
+        from BAC-7006-3352-001-V1.pdf\n
+        A Manual for Determining Aerodynamic Heating of High Speed Aircraft\n
         page ~236 - Table C.1\n
         These equations were used b/c they are valid to 300k ft.\n
         Extrapolation is performed above that.\n

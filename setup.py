@@ -60,7 +60,7 @@ setup(
     license=pyatmos.__license__,
     packages=packages,
     include_package_data=True,
-    zip_safe=False,
+    zip_safe=True,
     install_requires=install_requires,
     #{'': ['license.txt']}
     #package_data={'': ['*.png']},
@@ -75,5 +75,5 @@ setup(
         'console_scripts': [
         ]
     },
-    test_suite='pyatmos.test_atmosphere',
+    test_suite='pyatmos.utils.test_atmosphere',
 )
