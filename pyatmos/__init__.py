@@ -3,8 +3,6 @@ defines various atmospheric functions
 """
 # coding: utf-8
 from __future__ import print_function, unicode_literals, absolute_import
-#import sys
-#import os
 
 __version__ = '1.0'
 __desc__ = 'pyatmos'

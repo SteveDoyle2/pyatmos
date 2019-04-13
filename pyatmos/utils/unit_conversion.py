@@ -1,5 +1,6 @@
 from __future__ import print_function, absolute_import
 
+
 def _feet_to_alt_units(alt_units):
     # type : (str) -> float
     """helper method"""
@@ -9,6 +10,36 @@ def _feet_to_alt_units(alt_units):
         factor = 1.
     else:
         raise RuntimeError('alt_units=%r is not valid; use [ft, m]' % alt_units)
+    return factor
+
+
+def _rankine_to_temperature_units(temperature_units):
+    if temperature_units == 'R':
+        factor = 1.
+    elif temperature_units == 'K':
+        factor = 5. / 9.
+    else:
+        raise RuntimeError('temperature_units=%r is not valid; use [R, K]' % temperature_units)
+    return factor
+
+
+def _psfs_to_dvisc_units(visc_units):
+    """same units as pressure, except multiplied by seconds"""
+    if visc_units == '(lbf*s)/ft^2':
+        factor = 1.
+    elif visc_units in ['(N*s)/m^2', 'Pa*s']:
+        factor = 47.88026
+    else:
+        raise NotImplementedError('visc_units=%r; not in (lbf*s)/ft^2 or (N*s)/m^2 or Pa*s')
+    return factor
+
+def _ft2s_to_kvisc_units(alt_units, visc_units):
+    if visc_units == 'ft^2/s':
+        factor = 1.
+    elif visc_units == 'm^2/s':
+        factor = _feet_to_alt_units(alt_units) ** 2  # TODO: double check this...
+    else:
+        raise NotImplementedError('visc_units=%r' % visc_units)
     return factor
 
 def convert_altitude(alt, alt_units_in, alt_units_out):

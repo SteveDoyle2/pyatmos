@@ -19,11 +19,12 @@ import sys
 from math import log, exp
 import numpy as np
 
-from .unitless import speed_of_sound
+from .unitless import speed_of_sound, dynamic_pressure_p_mach
 from .unit_conversion import  (
     convert_altitude, convert_density, convert_pressure, convert_velocity,
+    _feet_to_alt_units, _rankine_to_temperature_units, _psfs_to_dvisc_units, _ft2s_to_kvisc_units,
     _altitude_factor, _temperature_factor, _pressure_factor, _velocity_factor, _density_factor,
-    _feet_to_alt_units, _reynolds_factor)
+    _reynolds_factor)
 
 
 def atm_temperature(alt, alt_units='ft', temperature_units='R'):
@@ -70,15 +71,10 @@ def atm_temperature(alt, alt_units='ft', temperature_units='R'):
         T = 354.348
         #raise AtmosphereError("altitude is too high")
 
-    if temperature_units == 'R':
-        factor = 1.
-    elif temperature_units == 'K':
-        factor = 5. / 9.
-    else:
-        raise RuntimeError('temperature_units=%r is not valid; use [R, K]' % temperature_units)
-
+    factor = _rankine_to_temperature_units(temperature_units)
     T2 = T * factor
     return T2
+
 
 def atm_pressure(alt, alt_units='ft', pressure_units='psf'):
     # type : (float, str, str) -> float
@@ -112,6 +108,7 @@ def atm_pressure(alt, alt_units='ft', pressure_units='psf'):
     factor = _pressure_factor('psf', pressure_units)
     return p * factor
 
+
 def _log_pressure(alt_ft):
     """calculates the log(pressure) in psf given altitude in feet"""
     if alt_ft < 36151.725:
@@ -130,6 +127,7 @@ def _log_pressure(alt_ft):
         #print("alt=%i kft > 299.5 kft" % (alt_ft / 1000.))
         ln_pressure = -2.971785 - 5.1533546650E-5 * (alt_ft - 249000.304)
     return ln_pressure
+
 
 def atm_dynamic_pressure(alt, mach, alt_units='ft', pressure_units='psf'):
     # type : (float, float, str, str) -> float
@@ -168,15 +166,6 @@ def atm_dynamic_pressure(alt, mach, alt_units='ft', pressure_units='psf'):
     q2 = q * factor
     return q2
 
-def dynamic_pressure_p_mach(p, mach):
-    """Calculates dynamic pressure"""
-    q = 0.7 * p * mach ** 2
-    return q
-
-def dynamic_pressure_rho_vel(rho, vel):
-    """Calculates dynamic pressure"""
-    q = 0.5 * rho * vel ** 2
-    return q
 
 def atm_speed_of_sound(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4):
     # type : (float, str, str, float) -> float
@@ -209,6 +198,7 @@ def atm_speed_of_sound(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4):
     a2 = a * factor
     return a2
 
+
 def atm_velocity(alt, mach, alt_units='ft', velocity_units='ft/s'):
     # type : (float, float, str, str) -> float
     r"""
@@ -235,6 +225,7 @@ def atm_velocity(alt, mach, alt_units='ft', velocity_units='ft/s'):
     a = atm_speed_of_sound(alt, alt_units=alt_units, velocity_units=velocity_units)
     V = mach * a # units=ft/s or m/s
     return V
+
 
 def atm_equivalent_airspeed(alt, mach, alt_units='ft', eas_units='ft/s'):
     # type : (float, float, str, str) -> float
@@ -267,11 +258,17 @@ def atm_equivalent_airspeed(alt, mach, alt_units='ft', eas_units='ft/s'):
 
     """
     z = convert_altitude(alt, alt_units, 'ft')
+    p_psf = atm_pressure(z)
+    eas_fts = _equivalent_airspeed(mach, p_psf)
+    eas2 = convert_velocity(eas_fts, 'ft/s', eas_units)
+    return eas2
+
+
+def _equivalent_airspeed(mach, p_psf):
+    """helper method for atm_equivalent_airspeed"""
     z0 = 0.
     T0 = atm_temperature(z0)
     p0 = atm_pressure(z0)
-    p = atm_pressure(z)
-
     gamma = 1.4
     R = 1716.
     #eas = a * mach * sqrt((p * T0) / (T * p0))
@@ -281,9 +278,9 @@ def atm_equivalent_airspeed(alt, mach, alt_units='ft', eas_units='ft/s'):
     #    = k * sqrt(p)
     # rho0 = p0 / (R * T0)
     # k = sqrt(gamma / rho0) * mach
-    eas = np.sqrt(gamma * R * T0 / p0) * mach * p ** 0.5
-    eas2 = convert_velocity(eas, 'ft/s', eas_units)
-    return eas2
+    eas = np.sqrt(gamma * R * T0 / p0) * mach * p_psf ** 0.5
+    return eas
+
 
 def atm_mach(alt, V, alt_units='ft', velocity_units='ft/s'):
     # type : (float, float, str, str) -> float
@@ -311,6 +308,7 @@ def atm_mach(alt, V, alt_units='ft', velocity_units='ft/s'):
     a = atm_speed_of_sound(alt, alt_units=alt_units, velocity_units=velocity_units)
     mach = V / a
     return mach
+
 
 def atm_density(alt, R=1716., alt_units='ft', density_units='slug/ft^3'):
     # type : (float, float, str, str) -> float
@@ -345,6 +343,7 @@ def atm_density(alt, R=1716., alt_units='ft', density_units='slug/ft^3'):
     rho2 = convert_density(rho, 'slug/ft^3', density_units)
     return rho2
 
+
 def atm_kinematic_viscosity_nu(alt, alt_units='ft', visc_units='ft^2/s'):
     # type : (float, str, str) -> float
     r"""
@@ -373,15 +372,10 @@ def atm_kinematic_viscosity_nu(alt, alt_units='ft', visc_units='ft^2/s'):
     z = alt * _altitude_factor(alt_units, 'ft')
     rho = atm_density(z)
     mu = atm_dynamic_viscosity_mu(z)
-    nu = mu / rho
-
-    if visc_units == 'ft^2/s':
-        factor = 1.
-    elif visc_units == 'm^2/s':
-        factor = _feet_to_alt_units(alt_units) ** 2
-    else:
-        raise NotImplementedError('visc_units=%r' % visc_units)
+    nu = mu / rho  # ft^2/s
+    factor = _ft2s_to_kvisc_units(alt_units, visc_units)
     return nu * factor
+
 
 def atm_dynamic_viscosity_mu(alt, alt_units='ft', visc_units='(lbf*s)/ft^2'):
     # type : (float, str, str) -> float
@@ -408,15 +402,9 @@ def atm_dynamic_viscosity_mu(alt, alt_units='ft', visc_units='(lbf*s)/ft^2'):
     z = alt * _altitude_factor(alt_units, 'ft')
     T = atm_temperature(z)
     mu = sutherland_viscoscity(T)  # (lbf*s)/ft^2
-
-    # same units as pressure, except multiplied by seconds
-    if visc_units == '(lbf*s)/ft^2':
-        factor = 1.
-    elif visc_units in ['(N*s)/m^2', 'Pa*s']:
-        factor = 47.88026
-    else:
-        raise NotImplementedError('visc_units=%r; not in (lbf*s)/ft^2 or (N*s)/m^2 or Pa*s')
+    factor = _psfs_to_dvisc_units(visc_units)
     return mu * factor
+
 
 def atm_unit_reynolds_number2(alt, mach, alt_units='ft', reynolds_units='1/ft'):
     # type : (float, float, str, str) -> float
@@ -462,6 +450,7 @@ def atm_unit_reynolds_number2(alt, mach, alt_units='ft', reynolds_units='1/ft'):
     ReL *= _reynolds_factor('1/ft', reynolds_units)
     return ReL
 
+
 def atm_unit_reynolds_number(alt, mach, alt_units='ft', reynolds_units='1/ft'):
     # type : (float, float, str, str) -> float
     r"""
@@ -495,6 +484,7 @@ def atm_unit_reynolds_number(alt, mach, alt_units='ft', reynolds_units='1/ft'):
     ReL *= _reynolds_factor('1/ft', reynolds_units)
     return ReL
 
+
 def sutherland_viscoscity(T):
     # type: (float) -> float
     r"""
@@ -527,4 +517,3 @@ def sutherland_viscoscity(T):
                              '(T>5400 R) T=%s\n' % T)
         viscosity = 2.27E-8 * (T ** 1.5) / (T + 198.6)
     return viscosity
-
