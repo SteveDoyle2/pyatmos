@@ -29,7 +29,7 @@ packages = find_packages() # exclude=['ez_setup', 'examples', 'tests'] + exclude
 is_travis = 'TRAVIS' in os.environ
 #is_rtd = 'READTHEDOCS' in os.environ
 
-install_requires = []
+install_requires = ['numpy']
 is_windows = 'nt' in os.name
 if is_travis and not is_windows:
     install_requires.append('python-coveralls')
@@ -38,12 +38,12 @@ if is_travis and not is_windows:
 
 
 # get package metadata
-import cpylog
+import pyatmos
 setup(
-    name='cpylog',
-    version=cpylog.__version__,
-    description=cpylog.__desc__,
-    long_description=cpylog.__long__,
+    name='pyatmos',
+    version=pyatmos.__version__,
+    description=pyatmos.__desc__,
+    long_description=pyatmos.__long__,
     classifiers=[
         'Natural Language :: English',
         'Intended Audience :: Science/Research',
@@ -54,10 +54,10 @@ setup(
         ], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='',
     python_requires='>2.7.6,!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*',
-    author=cpylog.__author__,
-    author_email=cpylog.__email__,
-    url=cpylog.__website__,
-    license=cpylog.__license__,
+    author=pyatmos.__author__,
+    author_email=pyatmos.__email__,
+    url=pyatmos.__website__,
+    license=pyatmos.__license__,
     packages=packages,
     include_package_data=True,
     zip_safe=False,
@@ -75,5 +75,5 @@ setup(
         'console_scripts': [
         ]
     },
-    test_suite='cpylog.test_log',
+    test_suite='pyatmos.test_atmosphere',
 )

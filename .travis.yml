@@ -77,10 +77,10 @@ install:
 # Run test
 script:
   #- nosetests --with-cov --cov YOUR_PACKAGE_NAME_HERE --cov-config .coveragerc --logging-level=INFO
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]];     then coverage run cpylog/test_log.py; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]];     then python cpylog/test_log.py; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]];     then python cpylog/test_log.py; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "nightly" ]]; then python cpylog/test_log.py; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]];     then coverage run pyatmos/test_atmosphere.py; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]];     then python pyatmos/test_atmosphere.py; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]];     then python pyatmos/test_atmosphere.py; fi
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "nightly" ]]; then python pyatmos/test_atmosphere.py; fi
 
   # good
   #- "python pyNastran/all_tests.py"
