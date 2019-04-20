@@ -21,9 +21,9 @@ import numpy as np
 
 from .unitless import speed_of_sound, dynamic_pressure_p_mach
 from .unit_conversion import  (
-    convert_altitude, convert_density, convert_pressure, convert_velocity,
-    _feet_to_alt_units, _rankine_to_temperature_units, _psfs_to_dvisc_units, _ft2s_to_kvisc_units,
-    _altitude_factor, _temperature_factor, _pressure_factor, _velocity_factor, _density_factor,
+    convert_altitude, convert_density, convert_velocity,
+    _rankine_to_temperature_units, _psfs_to_dvisc_units, _ft2s_to_kvisc_units,
+    _altitude_factor, _pressure_factor, _velocity_factor,
     _reynolds_factor)
 
 
