@@ -111,8 +111,6 @@ def get_alt_for_eas_with_constant_mach(equivalent_airspeed, mach,
         alt_old = alt_final
         alt1 = alt_old
         alt2 = alt_old + dalt
-        T1 = atm_temperature(alt1)
-        T2 = atm_temperature(alt2)
         press1 = atm_pressure(alt1)
         press2 = atm_pressure(alt2)
         eas1 = k * np.sqrt(press1)

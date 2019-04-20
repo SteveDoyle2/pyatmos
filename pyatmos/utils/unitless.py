@@ -7,10 +7,6 @@ Contains functions that have both consistent units and are vectorized:
 
 """
 from __future__ import print_function, absolute_import
-import sys
-import numpy as np
-
-from .unit_conversion import _altitude_factor, _temperature_factor, _pressure_factor
 
 
 def dynamic_pressure_p_mach(p, mach):
