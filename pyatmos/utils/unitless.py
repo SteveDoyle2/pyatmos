@@ -35,6 +35,7 @@ def speed_of_sound(T, R=1716., gamma=1.4):
         1716.59, dry air, R=287.04 J/kg*K
     gamma : float; default=1.4
         the ratio of Cp/Cv
+
     """
     a = (gamma * R * T) ** 0.5
     return a

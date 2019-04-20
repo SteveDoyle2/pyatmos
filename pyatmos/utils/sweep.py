@@ -12,6 +12,7 @@ Contains the following atmospheric functions:
 
 Sweeps use SI as the default units because English mass units are tricky.
 Buyer beware!
+
 """
 from __future__ import print_function, absolute_import
 import  numpy as np
@@ -42,6 +43,7 @@ def make_alt_sweep(mach, alts, eas_limit=1000.,
         the density units; slug/ft^3, slinch/in^3, kg/m^3
     eas_units : str; default='m/s'
         the equivalent airspeed units; ft/s, m/s, in/s, knots
+
     """
     alt = np.asarray(alts, dtype='float64')
     alt_ft = alt * _altitude_factor(alt_units, 'ft')
@@ -90,6 +92,7 @@ def make_mach_sweep(alt, machs, eas_limit=1000.,
         the density units; slug/ft^3, slinch/in^3, kg/m^3
     eas_units : str; default='m/s'
         the equivalent airspeed units; ft/s, m/s, in/s, knots
+
     """
     mach = np.asarray(machs)
     rho = np.ones(len(mach)) * atm_density(alt, R=1716., alt_units=alt_units,
@@ -126,6 +129,7 @@ def make_eas_sweep(alt, eass, alt_units='m', velocity_units='m/s', density_units
         the density units; slug/ft^3, slinch/in^3, kg/m^3
     eas_units : str; default='m/s'
         the equivalent airspeed units; ft/s, m/s, in/s, knots
+
     """
     # convert eas to output units
     eas = np.atleast_1d(eass) * _velocity_factor(eas_units, velocity_units)
