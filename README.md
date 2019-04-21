@@ -15,3 +15,10 @@ Contains the following atmospheric functions:
 
 All the default units are in English units because the source equations
 are in English units.
+
+https://pyatmos.readthedocs.io/en/latest/
+
+|  Version  | Docs  | Status |
+| :--- 	  | :--- 	  | :--- 	  |
+|  [![PyPi Version](https://img.shields.io/pypi/v/pyatmos.svg)](https://pypi.python.org/pypi/pyatmos) | [docs](http://pynastran.m4-engineering.com/1.1.0/) | [![Build Status](https://img.shields.io/travis/SteveDoyle2/pyatmos/v1.0.svg)](https://travis-ci.org/SteveDoyle2/pyatmos) [![Coverage Status](https://img.shields.io/coveralls/SteveDoyle2/pyatmos/v1.0.svg)](https://coveralls.io/github/SteveDoyle2/pyatmos?branch=v1.0) |
+|   Master | [![Documentation Status](https://readthedocs.org/projects/pynastran-git/badge/?version=latest)](https://pyatmos-git.readthedocs.io/en/latest/?badge=latest) | [![Linux Status](https://img.shields.io/travis/SteveDoyle2/pyatmos/master.svg)](https://travis-ci.org/SteveDoyle2/pyatmos) ![Coverage Status](https://coveralls.io/repos/github/SteveDoyle2/pyatmos/badge.svg?branch=master) |
