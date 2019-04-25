@@ -24,8 +24,8 @@ else:
     import pyatmos
     pkg_path = pyatmos.__path__[0]
 
-print ("cwd", cwd)
-print ("pkg_path", pkg_path)
+print("cwd", cwd)
+print("pkg_path", pkg_path)
 sys.stdout.flush()
 
 sys.path.append(os.path.dirname(cwd))
