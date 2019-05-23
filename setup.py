@@ -32,9 +32,9 @@ is_travis = 'TRAVIS' in os.environ
 install_requires = ['numpy']
 is_windows = 'nt' in os.name
 if is_travis and not is_windows:
-    install_requires.append('python-coveralls')
-    #py_packages.append('codecov')
-    #py_packages.append('coverage')
+    #install_requires.append('python-coveralls')
+    install_requires.append('codecov')
+    #install_requires.append('coverage')
 
 
 # get package metadata
