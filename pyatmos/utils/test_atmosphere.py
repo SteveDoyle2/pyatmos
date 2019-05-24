@@ -154,6 +154,9 @@ class TestAtm(unittest.TestCase):
         rho2 = atm_density(0., alt_units='ft', density_units='slinch/in^3')
         assert np.allclose(rho2, 0.00238075522/12.**4), rho2
 
+        with self.assertRaises(RuntimeError):
+            rho1 = atm_density(0., R=1716., alt_units='ft', density_units='fakeslug/ft^3')
+
         #--------------------------------------------------------------
         alts = [0., 10000, 20000., 30000., 40000., 50000.]
         rho_sf3 = atm_density_array(alts, R=1716., alt_units='ft', density_units='slug/ft^3')

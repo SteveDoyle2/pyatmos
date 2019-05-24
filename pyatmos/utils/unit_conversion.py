@@ -31,7 +31,7 @@ def _psfs_to_dvisc_units(visc_units):
     elif visc_units in ['(N*s)/m^2', 'Pa*s']:
         factor = 47.88026
     else:
-        raise NotImplementedError('visc_units=%r; not in (lbf*s)/ft^2 or (N*s)/m^2 or Pa*s')
+        raise RuntimeError('visc_units=%r; not in (lbf*s)/ft^2, (N*s)/m^2, or Pa*s')
     return factor
 
 def _ft2s_to_kvisc_units(alt_units, visc_units):
@@ -87,8 +87,8 @@ def _reynolds_factor(reynolds_units_in, reynolds_units_out):
     elif reynolds_units_in == '1/in':
         factor *= 12.
     else:
-        msg = 'reynolds_units_in=%r is not valid; use [1/ft, 1/m, 1/in]' % reynolds_units_in
-        raise RuntimeError(msg)
+        raise RuntimeError('reynolds_units_in=%r is not valid; use '
+                           '[1/ft, 1/m, 1/in]' % reynolds_units_in)
 
     # 1/ft to 1/m
     if reynolds_units_out == '1/m':
@@ -98,8 +98,8 @@ def _reynolds_factor(reynolds_units_in, reynolds_units_out):
     elif reynolds_units_out == '1/in':
         factor /= 12.
     else:
-        msg = 'reynolds_units_out=%r is not valid; use [1/ft, 1/m, 1/in]' % reynolds_units_out
-        raise RuntimeError(msg)
+        raise RuntimeError('reynolds_units_out=%r is not valid; use '
+                           '[1/ft, 1/m, 1/in]' % reynolds_units_out)
     return factor
 
 def convert_velocity(velocity, velocity_units_in, velocity_units_out):
@@ -122,8 +122,8 @@ def _velocity_factor(velocity_units_in, velocity_units_out):
     elif velocity_units_in == 'knots':
         factor *= 1.68781
     else:
-        msg = 'velocity_units_in=%r is not valid; use [ft/s, m/s, knots]' % velocity_units_in
-        raise RuntimeError(msg)
+        raise RuntimeError('velocity_units_in=%r is not valid; use '
+                           '[ft/s, m/s, in/s, knots]' % velocity_units_in)
 
     if velocity_units_out == 'm/s':
         factor *= 0.3048
@@ -134,9 +134,8 @@ def _velocity_factor(velocity_units_in, velocity_units_out):
     elif velocity_units_out == 'knots':
         factor /= 1.68781
     else:
-        msg = 'velocity_units_out=%r is not valid; use [ft/s, m/s, in/s, knots]' % (
-            velocity_units_out)
-        raise RuntimeError(msg)
+        raise RuntimeError('velocity_units_out=%r is not valid; use '
+                           '[ft/s, m/s, in/s, knots]' % velocity_units_out)
     return factor
 
 def convert_pressure(pressure, pressure_units_in, pressure_units_out):
@@ -161,8 +160,8 @@ def _pressure_factor(pressure_units_in, pressure_units_out):
     elif pressure_units_in == 'MPa':
         factor *= 20885.43815038
     else:
-        msg = 'pressure_units_in=%r is not valid; use [psf, psi, Pa, kPa, MPa]' % pressure_units_in
-        raise RuntimeError(msg)
+        raise RuntimeError('pressure_units_in=%r is not valid; use '
+                           '[psf, psi, Pa, kPa, MPa]' % pressure_units_in)
 
     if pressure_units_out == 'psf':
         pass
@@ -175,8 +174,8 @@ def _pressure_factor(pressure_units_in, pressure_units_out):
     elif pressure_units_out == 'MPa':
         factor /= 20885.43815038
     else:
-        raise RuntimeError('pressure_units_out=%r is not valid; use [psf, psi, Pa, kPa, MPa]' % (
-            pressure_units_out))
+        raise RuntimeError('pressure_units_out=%r is not valid; use '
+                           '[psf, psi, Pa, kPa, MPa]' % pressure_units_out)
     return factor
 
 def convert_density(density, density_units_in, density_units_out):
@@ -197,8 +196,8 @@ def _density_factor(density_units_in, density_units_out):
     elif density_units_in == 'kg/m^3':
         factor /= 515.378818
     else:
-        msg = 'density_units_in=%r is not valid; use [slug/ft^3]' % density_units_in
-        raise RuntimeError(msg)
+        raise RuntimeError('density_units_in=%r is not valid; use '
+                           '[slug/ft^3, slinch/in^3, kg/m^3]' % density_units_in)
 
     # data is now in slug/ft^3
     if density_units_out == 'slug/ft^3':
@@ -208,13 +207,13 @@ def _density_factor(density_units_in, density_units_out):
     elif density_units_out == 'kg/m^3':
         factor *= 515.378818
     else:
-        msg = 'density_units_out=%r is not valid; use [slug/ft^3, slinch/in^3]' % density_units_out
-        raise RuntimeError(msg)
+        raise RuntimeError('density_units_out=%r is not valid; use '
+                           '[slug/ft^3, slinch/in^3, kg/m^3]' % density_units_out)
     return factor
 
 def _temperature_factor(temperature_units_in, temperature_units_out):
     if temperature_units_in == temperature_units_out:
-        return 1.
+        factor = 1.
     elif  temperature_units_in == 'R' and temperature_units_out == 'K':
         factor = 5. / 9.
     elif  temperature_units_in == 'K' and temperature_units_out == 'R':
