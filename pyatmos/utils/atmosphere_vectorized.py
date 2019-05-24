@@ -18,7 +18,7 @@ from __future__ import print_function, absolute_import
 import sys
 import numpy as np
 
-from .atmosphere import atm_temperature, _log_pressure, _equivalent_airspeed
+from .atmosphere import atm_temperature, _log_pressure, _equivalent_airspeed, atm_pressure
 from .unitless import speed_of_sound
 from .unit_conversion import (
     convert_velocity, convert_density,
@@ -96,7 +96,7 @@ def sutherland_viscoscity_array(T):
     viscosity = 2.27E-8 * (T ** 1.5) / (T + 198.6)
     ilow = np.where(T < 225.)[0]
     if len(ilow):
-        viscosity[ilow] = 8.0382436E-10 * T
+        viscosity[ilow] = 8.0382436E-10 * T[ilow]
 
     ihigh = np.where(T > 5400)[0]
     if len(ihigh):
@@ -108,9 +108,13 @@ def sutherland_viscoscity_array(T):
 def atm_equivalent_airspeed_array(alt, mach, alt_units='ft', eas_units='ft/s'):
     # type : (Any, Any, str, str) -> np.ndarray
     """Gets the equivalent airspeed as a numpy array"""
-    alt = np.asarray(alt)
-    alt_ft = alt * _altitude_factor(alt_units, 'ft')
-    p_psf = atm_pressure_array(alt_ft)
+    if isinstance(alt, float):
+        pressi = atm_pressure(alt, alt_units=alt_units)
+        p_psf = pressi * np.ones(len(mach), dtype=mach.dtype)
+    else:
+        alt = np.asarray(alt)
+        alt_ft = alt * _altitude_factor(alt_units, 'ft')
+        p_psf = atm_pressure_array(alt_ft)
     eas_fts = _equivalent_airspeed(mach, p_psf)
     eas2 = convert_velocity(eas_fts, 'ft/s', eas_units)
     return eas2
