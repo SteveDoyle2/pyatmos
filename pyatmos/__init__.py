@@ -1,6 +1,4 @@
-"""
-defines various atmospheric functions
-"""
+"""defines various atmospheric functions"""
 # coding: utf-8
 from __future__ import print_function, unicode_literals, absolute_import
 
@@ -14,7 +12,8 @@ __email__ = ''
 
 from .utils.atmosphere import (
     atm_density, atm_dynamic_pressure, atm_temperature,
-    atm_pressure, atm_velocity, atm_mach, atm_equivalent_airspeed,
+    atm_pressure, atm_velocity, atm_speed_of_sound, atm_mach,
+    atm_equivalent_airspeed,
     atm_dynamic_viscosity_mu, atm_kinematic_viscosity_nu,
     atm_unit_reynolds_number, atm_unit_reynolds_number2,
 )

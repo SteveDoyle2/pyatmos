@@ -1,10 +1,19 @@
 """
 Contains the following atmospheric functions:
 
- - density = atm_density(alt, mach)
+ - alt = get_alt_for_density(density, density_units='slug/ft^3', alt_units='ft',
+             nmax=20, tol=5.)
+ - alt = get_alt_for_eas_with_constant_mach(equivalent_airspeed, mach,
+             velocity_units='ft/s', alt_units='ft',
+             nmax=20, tol=5.)
+ - alt = get_alt_for_q_with_constant_mach(q, mach, pressure_units='psf', alt_units='ft',
+             nmax=20, tol=5.)
+ - alt = get_alt_for_pressure(pressure, pressure_units='psf', alt_units='ft',
+             nmax=20, tol=5.)
 
 All the default units are in English units because the source equations
 are in English units.
+
 """
 from __future__ import print_function, absolute_import
 import numpy as np
@@ -34,13 +43,13 @@ def get_alt_for_density(density, density_units='slug/ft^3', alt_units='ft', nmax
     -------
     alt : float
         the altitude in feet
+
     """
     tol = convert_altitude(tol, alt_units, 'ft')
     dalt = tol  # ft
     alt_old = 0.
     alt_final = 5000.
     n = 0
-
     #density_scale = _density_factor(density_units, "slug/ft^3")
 
     # Newton's method
@@ -83,6 +92,7 @@ def get_alt_for_eas_with_constant_mach(equivalent_airspeed, mach,
     -------
     alt : float
         the altitude in alt units
+
     """
     equivalent_airspeed = convert_velocity(equivalent_airspeed, velocity_units, 'ft/s')
     tol = convert_altitude(tol, alt_units, 'ft')
@@ -150,6 +160,7 @@ def get_alt_for_q_with_constant_mach(q, mach, pressure_units='psf', alt_units='f
     -------
     alt : float
         the altitude in alt_units
+
     """
     pressure = 2 * q / (1.4 * mach ** 2) # gamma = 1.4
     alt = get_alt_for_pressure(
@@ -179,6 +190,7 @@ def get_alt_for_pressure(pressure, pressure_units='psf', alt_units='ft', nmax=20
     -------
     alt : float
         the altitude in alt_units
+
     """
     pressure = convert_pressure(pressure, pressure_units, 'psf')
     tol = convert_altitude(tol, alt_units, 'ft')

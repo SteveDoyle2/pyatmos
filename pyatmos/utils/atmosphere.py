@@ -193,7 +193,7 @@ def atm_speed_of_sound(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4):
     # converts everything to English units first
     z = alt * _altitude_factor(alt_units, 'ft')
     T = atm_temperature(z)
-    a = speed_of_sound(T, R=1716., gamma=1.4)
+    a = speed_of_sound(T, R=1716., gamma=gamma)
 
     factor = _velocity_factor('ft/s', velocity_units) # ft/s to m/s
     a2 = a * factor

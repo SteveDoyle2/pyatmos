@@ -216,10 +216,11 @@ def _temperature_factor(temperature_units_in, temperature_units_out):
     if temperature_units_in == temperature_units_out:
         return 1.
     elif  temperature_units_in == 'R' and temperature_units_out == 'K':
-        return 5. / 9.
-    elif  temperature_units_in == 'R' and temperature_units_out == 'K':
-        return 9. / 5.
+        factor = 5. / 9.
+    elif  temperature_units_in == 'K' and temperature_units_out == 'R':
+        factor = 9. / 5.
     else:
         raise NotImplementedError('temperature_units_in=%r temperature_units_out=%r '
                                   'is not supported' % (
                                       temperature_units_in, temperature_units_out))
+    return factor

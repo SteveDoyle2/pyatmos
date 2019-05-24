@@ -4,7 +4,8 @@ import numpy as np
 
 from pyatmos import (
     atm_density, atm_dynamic_pressure, atm_temperature,
-    atm_pressure, atm_velocity, atm_mach, atm_equivalent_airspeed,
+    atm_pressure, atm_velocity, atm_speed_of_sound, atm_mach,
+    atm_equivalent_airspeed,
     atm_dynamic_viscosity_mu, atm_kinematic_viscosity_nu,
     get_alt_for_density, get_alt_for_pressure,
     get_alt_for_q_with_constant_mach,
@@ -153,6 +154,29 @@ class TestAtm(unittest.TestCase):
         rho2 = atm_density(0., alt_units='ft', density_units='slinch/in^3')
         assert np.allclose(rho2, 0.00238075522/12.**4), rho2
 
+        #--------------------------------------------------------------
+        alts = [0., 10000, 20000., 30000., 40000., 50000.]
+        rho_sf3 = atm_density_array(alts, R=1716., alt_units='ft', density_units='slug/ft^3')
+        rho_kg3 = atm_density_array(alts, R=1716., alt_units='m', density_units='kg/m^3')
+
+        rho_sf3_expected = np.array([
+            0.00238076, 0.00175925, 0.00127023, 0.00089271, 0.00058765, 0.00036439])
+        assert np.allclose(rho_sf3, rho_sf3_expected), rho_sf3 - rho_sf3_expected
+
+        rho_km3_expected = np.array([
+            1.22699081e+00, 4.14415068e-01, 8.90337531e-02,
+            1.79037453e-02, 4.01352474e-03, 1.08334331e-03])
+        assert np.allclose(rho_kg3, rho_km3_expected), rho_kg3 - rho_km3_expected
+
+        for alt, rhoi_sf3_expected, rhoi_km3_expected in zip(alts, rho_sf3_expected,
+                                                             rho_km3_expected):
+            rhoi_sf3 = atm_density(alt, R=1716., alt_units='ft', density_units='slug/ft^3')
+            rhoi_km3 = atm_density(alt, R=1716., alt_units='m', density_units='kg/m^3')
+
+            assert np.allclose(rhoi_sf3, rhoi_sf3_expected), rhoi_sf3 - rhoi_sf3_expected
+            assert np.allclose(rhoi_km3, rhoi_km3_expected), rhoi_km3 - rhoi_km3_expected
+
+
     def test_velocity(self):
         """tests velocity at various altitudes"""
         vel_fts_55_2p4 = atm_velocity(55000., 2.4)
@@ -202,11 +226,35 @@ class TestAtm(unittest.TestCase):
         self.assertAlmostEqual(vel_a, vel_b)
         self.assertAlmostEqual(vel_c, 1935.8, delta=0.1)
 
+    def test_speed_of_sound(self):
+        """tests speed of sound"""
+        alts = [0., 10000, 20000., 30000., 40000., 50000.]
+        sos_fts = atm_speed_of_sound_array(alts, alt_units='ft', velocity_units='ft/s', gamma=1.4)
+        sos_ms = atm_speed_of_sound_array(alts, alt_units='m', velocity_units='m/s', gamma=1.4)
+
+        sos_fts_expected = np.array([
+            1115.54614427, 1076.53047151, 1036.0465782,
+            993.91507096, 967.93965266, 967.93965266])
+        assert np.allclose(sos_fts, sos_fts_expected), sos_fts - sos_fts_expected
+
+        sos_ms_expected = np.array([
+            340.01846477, 299.23975599, 295.02800613,
+            304.76553536, 323.72545459, 336.98149457])
+        assert np.allclose(sos_ms, sos_ms_expected), sos_ms - sos_ms_expected
+
+        for alt, sosi_fts_expected, sosi_ms_expected in zip(alts, sos_fts_expected,
+                                                            sos_ms_expected):
+            sosi_fts = atm_speed_of_sound(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4)
+            sosi_ms = atm_speed_of_sound(alt, alt_units='m', velocity_units='m/s', gamma=1.4)
+
+            assert np.allclose(sosi_fts, sosi_fts_expected), sosi_fts - sosi_fts_expected
+            assert np.allclose(sosi_ms, sosi_ms_expected), sosi_ms - sosi_ms_expected
+
+
+
     def test_mach(self):
-        """
-        @todo fix error in function related to assertAlmostEqual
-        """
-        mach_a = atm_mach(14000., 743.011549709834) #, debug=False)
+        """tests Mach number"""
+        mach_a = atm_mach(14000., 743.011549709834)
         mach_b = atm_mach(14000., 2122.8901420281)
         self.assertAlmostEqual(mach_a, 0.7, delta=0.01)
         self.assertAlmostEqual(mach_b, 2.0, delta=0.002)
@@ -226,7 +274,6 @@ class TestAtm(unittest.TestCase):
 
     def test_reynolds(self):
         """tests reynolds number"""
-
         self.assertEqual(
             atm_unit_reynolds_number(55000., 2.4, alt_units='ft', reynolds_units='1/ft'),
             2244166.3810534105)
@@ -272,6 +319,30 @@ class TestAtm(unittest.TestCase):
         mu = atm_kinematic_viscosity_nu(5000., alt_units='m', visc_units='m^2/s')
         self.assertEqual(mu, 2.204293839480214e-05)
 
+        #--------------------------------------------------------------
+        alts = [0., 10000, 20000., 30000., 40000., 50000.]
+        nu_f2s = atm_kinematic_viscosity_nu_array(alts, alt_units='ft', visc_units='ft^2/s')
+        nu_m2s = atm_kinematic_viscosity_nu_array(alts, alt_units='m', visc_units='m^2/s')
+
+        nu_f2s_expected = np.array([
+            0.00015687, 0.00020075, 0.00026151,
+            0.0003477, 0.00050544, 0.00081513])
+
+        assert np.allclose(nu_f2s, nu_f2s_expected), nu_f2s - nu_f2s_expected
+
+        nu_m2s_expected = np.array([
+            1.45733325e-05, 3.51385424e-05, 1.59732441e-04,
+             8.38339961e-04, 4.12384653e-03, 1.62766057e-02])
+        assert np.allclose(nu_m2s, nu_m2s_expected), nu_m2s - nu_m2s_expected
+
+        for alt, nui_f2s_expected, nui_m2s_expected in zip(alts, nu_f2s_expected,
+                                                           nu_m2s_expected):
+            nui_f2s = atm_kinematic_viscosity_nu(alt, alt_units='ft', visc_units='ft^2/s')
+            nui_m2s = atm_kinematic_viscosity_nu(alt, alt_units='m', visc_units='m^2/s')
+
+            assert np.allclose(nui_f2s, nui_f2s_expected), nui_f2s - nui_f2s_expected
+            assert np.allclose(nui_m2s, nui_m2s_expected), nui_m2s - nui_m2s_expected
+
     def test_get_alt_for_density(self):
         """tests get_alt_for_density"""
         alt_targets = [0., 10., 20., 30., 40., 50.]
@@ -313,9 +384,9 @@ class TestAtm(unittest.TestCase):
 
         tol = 0.001 # in feet
         alt_a = get_alt_for_q_with_constant_mach(
-            600., 0.8, pressure_units='psf', alt_units='ft', nmax=20, tol=tol)
+            600., 0.8, pressure_units='psf', alt_units='ft', nmax=30, tol=tol)
         alt_b = get_alt_for_q_with_constant_mach(
-            400., 0.8, pressure_units='psf', alt_units='ft', nmax=20, tol=tol)
+            400., 0.8, pressure_units='psf', alt_units='ft', nmax=30, tol=tol)
 
         self.assertAlmostEqual(alt_a, 12144.30, delta=1.25)  # TODO: should be 0.01
         self.assertAlmostEqual(alt_b, 22058.47, delta=2.25)  # TODO: should be 0.01

@@ -21,7 +21,7 @@ import numpy as np
 from .atmosphere import atm_temperature, _log_pressure, _equivalent_airspeed
 from .unitless import speed_of_sound
 from .unit_conversion import (
-    convert_altitude, convert_velocity, convert_density,
+    convert_velocity, convert_density,
     _rankine_to_temperature_units, _psfs_to_dvisc_units, _ft2s_to_kvisc_units,
     _altitude_factor, _pressure_factor, _velocity_factor,
 )
@@ -58,9 +58,10 @@ def atm_speed_of_sound_array(alt, alt_units='ft', velocity_units='ft/s', gamma=1
 def atm_density_array(alt, R=1716., alt_units='ft', density_units='slug/ft^3'):
     # type : (Any, float, str, str) -> np.ndarray
     """Gets the density as a numpy array"""
-    z = convert_altitude(alt, alt_units, 'ft')
-    p = atm_pressure_array(z)
-    T = atm_temperature_array(z)
+    alt = np.asarray(alt)
+    alt_ft = alt * _altitude_factor(alt_units, 'ft')
+    p = atm_pressure_array(alt_ft)
+    T = atm_temperature_array(alt_ft)
 
     rho = p / (R * T)
     rho2 = convert_density(rho, 'slug/ft^3', density_units)
@@ -70,8 +71,9 @@ def atm_density_array(alt, R=1716., alt_units='ft', density_units='slug/ft^3'):
 def atm_dynamic_viscosity_mu_array(alt, alt_units='ft', visc_units='(lbf*s)/ft^2'):
     # type : (Any, str, str) -> np.ndarray
     """Gets the dynamic viscosity as a numpy array"""
-    z = alt * _altitude_factor(alt_units, 'ft')
-    T = atm_temperature_array(z)
+    alt = np.asarray(alt)
+    alt_ft = alt * _altitude_factor(alt_units, 'ft')
+    T = atm_temperature_array(alt_ft)  # R
     mu = sutherland_viscoscity_array(T)  # (lbf*s)/ft^2
     factor = _psfs_to_dvisc_units(visc_units)
     return mu * factor
@@ -79,9 +81,10 @@ def atm_dynamic_viscosity_mu_array(alt, alt_units='ft', visc_units='(lbf*s)/ft^2
 def atm_kinematic_viscosity_nu_array(alt, alt_units='ft', visc_units='ft^2/s'):
     # type : (Any, str, str) -> np.ndarray
     """Gets the kinematic viscosity as a numpy array"""
-    z = alt * _altitude_factor(alt_units, 'ft')
-    rho = atm_density_array(z)
-    mu = atm_dynamic_viscosity_mu_array(z)
+    alt = np.asarray(alt)
+    alt_ft = alt * _altitude_factor(alt_units, 'ft')
+    rho = atm_density_array(alt_ft)
+    mu = atm_dynamic_viscosity_mu_array(alt_ft)
     nu = mu / rho  # ft^2/s
     factor = _ft2s_to_kvisc_units(alt_units, visc_units)
     return nu * factor
@@ -105,8 +108,9 @@ def sutherland_viscoscity_array(T):
 def atm_equivalent_airspeed_array(alt, mach, alt_units='ft', eas_units='ft/s'):
     # type : (Any, Any, str, str) -> np.ndarray
     """Gets the equivalent airspeed as a numpy array"""
-    z = convert_altitude(alt, alt_units, 'ft')
-    p_psf = atm_pressure_array(z)
+    alt = np.asarray(alt)
+    alt_ft = alt * _altitude_factor(alt_units, 'ft')
+    p_psf = atm_pressure_array(alt_ft)
     eas_fts = _equivalent_airspeed(mach, p_psf)
     eas2 = convert_velocity(eas_fts, 'ft/s', eas_units)
     return eas2
