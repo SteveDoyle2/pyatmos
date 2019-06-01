@@ -13,6 +13,7 @@ Contains the following atmospheric functions:
 
 All the default units are in English units because the source equations
 are in English units.
+
 """
 from __future__ import print_function, absolute_import
 import sys
@@ -367,7 +368,6 @@ def atm_kinematic_viscosity_nu(alt, alt_units='ft', visc_units='ft^2/s'):
     \f[ \large \nu = \frac{\mu}{\rho} \f]
 
     .. seealso::  sutherland_viscoscity
-    .. todo:: better debug
 
     """
     z = alt * _altitude_factor(alt_units, 'ft')
