@@ -42,6 +42,11 @@ class TestAtm(unittest.TestCase):
         self.assertEqual(atm_temperature(alt=0, alt_units='ft', temperature_units='K'),
                          287.77777777777777)
 
+        alts = np.ones((5, 5, 5)) * 60000.
+        temps = atm_temperature_array(alts, alt_units='ft', temperature_units='R')
+        self.assertEqual(temps.min(), 389.988)
+        self.assertEqual(temps.max(), 389.988)
+
     def test_pressure(self):
         """tests pressure at various altitudes"""
         self.assertEqual(atm_pressure(alt=0., alt_units='ft', pressure_units='psf'),
@@ -60,6 +65,11 @@ class TestAtm(unittest.TestCase):
         self.assertEqual(atm_pressure(alt=230*1000., **units), 0.13023784776280109)
         self.assertEqual(atm_pressure(alt=270*1000., **units), 0.017353278750799964)
         self.assertEqual(atm_pressure(alt=350*1000., **units), 0.00028114006933161638)
+
+        alts = np.ones((5, 5, 5)) * 60000.
+        pressures = atm_pressure_array(alts, alt_units='ft', pressure_units='psf')
+        self.assertEqual(pressures.min(), 151.20878913237249)
+        self.assertEqual(pressures.max(), 151.20878913237249)
 
         units = {
             'alt_units' : 'kft',
@@ -105,7 +115,7 @@ class TestAtm(unittest.TestCase):
             'alt_units' : 'ft',
             'visc_units' : '(lbf*s)/ft^2',
         }
-        self.assertEqual(atm_dynamic_viscosity_mu(alt=0., **units),        3.7345965612371534e-07)
+        self.assertEqual(atm_dynamic_viscosity_mu(alt=0., **units), 3.7345965612371534e-07)
         self.assertEqual(atm_dynamic_viscosity_mu(alt=10 *1000., **units), 3.5317481186391660e-07)
         self.assertEqual(atm_dynamic_viscosity_mu(alt=60 *1000., **units), 2.9702384755729678e-07)
         self.assertEqual(atm_dynamic_viscosity_mu(alt=120*1000., **units), 3.3485025784164385e-07)
@@ -335,7 +345,7 @@ class TestAtm(unittest.TestCase):
 
         nu_m2s_expected = np.array([
             1.45733325e-05, 3.51385424e-05, 1.59732441e-04,
-             8.38339961e-04, 4.12384653e-03, 1.62766057e-02])
+            8.38339961e-04, 4.12384653e-03, 1.62766057e-02])
         assert np.allclose(nu_m2s, nu_m2s_expected), nu_m2s - nu_m2s_expected
 
         for alt, nui_f2s_expected, nui_m2s_expected in zip(alts, nu_f2s_expected,
@@ -506,7 +516,7 @@ class TestAtm(unittest.TestCase):
         alt = 0.
         machs = np.linspace(0.6, 0.8)
         with self.assertRaises(RuntimeError):
-            rho, mach, vel = make_mach_sweep(
+            make_mach_sweep(
                 alt, machs, eas_limit=100.,
                 alt_units='m',
                 velocity_units='m/s',

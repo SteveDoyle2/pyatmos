@@ -2,14 +2,16 @@
 Contains the following atmospheric functions:
 
  - density = atm_density(alt, mach)
- - mach = atm_mach(alt, velocity)
- - velocity = atm_velocity(alt, mach)
- - pressure = atm_pressure(alt)
- - temperature = atm_temperature(alt)
- - sos = atm_speed_of_sound(alt)
- - mu = atm_dynamic_viscosity_mu(alt)
- - nu = atm_kinematic_viscosity_nu(alt)
- - eas = atm_equivalent_airspeed(alt, mach)
+ - mach = atm_mach_array(alt, velocity, alt_units='ft')
+ - velocity = atm_velocity_array(alt, mach, alt_units='ft')
+ - pressure = atm_pressure_array(alt, alt_units='ft', pressure_units='psf')
+ - temperature = atm_temperature_array(alt, alt_units='ft', temperature_units='R')
+ - q = atm_dynamic_pressure_array(alt, mach, alt_units='ft', pressure_units='psf')
+ - rho = atm_density_array(alt, R=1716., density_units: str='slug/ft^3')
+ - sos = atm_speed_of_sound_array(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4)
+ - mu = atm_dynamic_viscosity_mu_array(alt, alt_units='ft')
+ - nu = atm_kinematic_viscosity_nu_array(alt, alt_units='ft')
+ - eas = atm_equivalent_airspeed_array(alt, mach, alt_units='ft')
 
 All the default units are in English units because the source equations
 are in English units.
@@ -55,6 +57,7 @@ def atm_dynamic_pressure_array(alt: np.array, mach: np.array,
     so...
     \f[  \large q = \frac{\gamma}{2} p M^2  \f]
     """
+    alt = np.asarray(alt)
     alt_shape = alt.shape
     z = alt * _altitude_factor(alt_units, 'ft')
     p = atm_pressure_array(z)
@@ -67,6 +70,7 @@ def atm_dynamic_pressure_array(alt: np.array, mach: np.array,
 def atm_pressure_array(alt: np.array,
                        alt_units: str='ft', pressure_units: str='psf') -> np.array:
     """Gets the pressure as a numpy array"""
+    alt = np.asarray(alt)
     alt_ft = alt * _altitude_factor(alt_units, 'ft')
     ln_pressure = np.array([_log_pressure(alti) for alti in alt_ft.ravel()])
     press_psf = np.exp(ln_pressure).reshape(alt.shape)
@@ -76,6 +80,7 @@ def atm_pressure_array(alt: np.array,
 def atm_temperature_array(alt: np.array,
                           alt_units: str='ft', temperature_units: str='R') -> np.array:
     """Gets the temperature as a numpy array"""
+    alt = np.asarray(alt)
     temp_rankine = np.array([atm_temperature(alti, alt_units=alt_units, temperature_units='R')
                              for alti in alt.ravel()]).reshape(alt.shape)
     return temp_rankine * _rankine_to_temperature_units(temperature_units)
