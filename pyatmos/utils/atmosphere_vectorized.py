@@ -7,11 +7,11 @@ Contains the following atmospheric functions:
  - pressure = atm_pressure_array(alt, alt_units='ft', pressure_units='psf')
  - temperature = atm_temperature_array(alt, alt_units='ft', temperature_units='R')
  - q = atm_dynamic_pressure_array(alt, mach, alt_units='ft', pressure_units='psf')
- - rho = atm_density_array(alt, R=1716., density_units: str='slug/ft^3')
+ - rho = atm_density_array(alt, R=1716., density_units='slug/ft^3')
  - sos = atm_speed_of_sound_array(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4)
- - mu = atm_dynamic_viscosity_mu_array(alt, alt_units='ft')
- - nu = atm_kinematic_viscosity_nu_array(alt, alt_units='ft')
- - eas = atm_equivalent_airspeed_array(alt, mach, alt_units='ft')
+ - mu = atm_dynamic_viscosity_mu_array(alt, alt_units='ft', visc_units='(lbf*s)/ft^2')
+ - nu = atm_kinematic_viscosity_nu_array(alt, alt_units='ft', visc_units='ft^2/s')
+ - eas = atm_equivalent_airspeed_array(alt, mach, alt_units='ft', eas_units='ft/s')
 
 All the default units are in English units because the source equations
 are in English units.
@@ -58,7 +58,6 @@ def atm_dynamic_pressure_array(alt: np.array, mach: np.array,
     \f[  \large q = \frac{\gamma}{2} p M^2  \f]
     """
     alt = np.asarray(alt)
-    alt_shape = alt.shape
     z = alt * _altitude_factor(alt_units, 'ft')
     p = atm_pressure_array(z)
     q = 0.7 * p * mach ** 2
