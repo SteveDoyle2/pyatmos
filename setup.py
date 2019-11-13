@@ -2,21 +2,10 @@
 import os
 import sys
 from setuptools import setup, find_packages
-PY2 = False
-PY3 = True
-if sys.version_info < (3, 0):
-    PY2 = True
-    PY3 = False
 
 imajor, minor1, minor2 = sys.version_info[:3]
-if sys.version_info < (2, 7, 7):  # 2.7.15 used
-    # makes sure we don't get the following bug:
-    #   Issue #19099: The struct module now supports Unicode format strings.
+if sys.version_info < (3, 6, 0):  # 3.7.1 used
     sys.exit('Upgrade your Python to >= 2.7.7 or 3.6+; version=(%s.%s.%s)' % (imajor, minor1, minor2))
-
-if PY3:
-    if sys.version_info < (3, 6, 0):  # 3.7.1 used
-        sys.exit('Upgrade your Python to >= 2.7.7 or 3.6+; version=(%s.%s.%s)' % (imajor, minor1, minor2))
 
 
 packages = find_packages() # exclude=['ez_setup', 'examples', 'tests'] + exclude_words
@@ -48,12 +37,12 @@ setup(
         'Natural Language :: English',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         ], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='',
-    python_requires='>2.7.6,!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*',
+    #'>2.7.6,!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*',
+    python_requires='>3.5',
     author=pyatmos.__author__,
     author_email=pyatmos.__email__,
     url=pyatmos.__website__,

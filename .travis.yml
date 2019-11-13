@@ -3,16 +3,37 @@
 # - osx
 
 dist: xenial
+git:
+  quiet: true
 language: python
-python:
-  - "2.7"
-  - "3.6"
-  - "3.7"
+#python:
+#  - '3.6'
+#  - '3.7'
   #  # https://github.com/travis-ci/travis-ci/issues/9815
   #  dist: xenial
   #  sudo: true
-#  - "3.5-dev" # 3.5 development branch
-#  - "nightly" # currently points to 3.6-dev
+#  - "3.8-dev" # 3.8 development branch
+#  - "nightly" # currently points to 3.8-dev
+
+matrix:
+  include:
+    #--------------------------------------------------------------------------------------------------
+      # latest versions of package
+    - name: "Python 3.6"
+      python: '3.6'
+      env:
+      - NUMPY='numpy'
+
+    - name: "Python 3.7"
+      python: '3.7'
+      env:
+      - NUMPY='numpy'
+
+    - name: "Python 3.8"
+      python: '3.8'
+      env:
+      - NUMPY='numpy'
+
 
 #-------------------------------------------------
 # old-A
@@ -37,61 +58,43 @@ python:
 # Setup anaconda
 before_install:
  - sudo -H pip install auxlib
- - sudo pip install conda
 
 
 # per http://conda.pydata.org/docs/travis.html
 install:
+  # atlas
+  - echo "python=$TRAVIS_PYTHON_VERSION ${NUMPY}"
   - sudo apt-get update
+  - sudo apt-get install ${LIB} ${LIBH5} gfortran
 
-    # 4.1.11 -> 4.5.4 (2018/8/19)
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-4.5.4-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-4.5.4-Linux-x86_64.sh -O miniconda.sh;
-    fi
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
 
-  - conda install pip
-#  - pip install coveralls
-
-  # install dependencies
   # if line per https://docs.travis-ci.com/user/multi-os/
   - echo "python version=$TRAVIS_PYTHON_VERSION"
 
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]];     then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION atlas numpy; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]];     then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION atlas numpy; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]];     then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION atlas numpy; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "nightly" ]]; then conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION atlas numpy; fi
-  - source activate test-environment
-  - conda list
+#===install dependencies===
+#-----------pip------------
+  - pip install ${NUMPY}
+  - pip list
+#----------run-----------
   - python setup.py develop
 
 
 # Run test
 script:
   #- nosetests --with-cov --cov YOUR_PACKAGE_NAME_HERE --cov-config .coveragerc --logging-level=INFO
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]];     then coverage run pyatmos/utils/test_atmosphere.py; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.6" ]];     then python pyatmos/utils/test_atmosphere.py; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "3.7" ]];     then python pyatmos/utils/test_atmosphere.py; fi
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "nightly" ]]; then python pyatmos/utils/test_atmosphere.py; fi
-
-  # good
-  #- "python pyNastran/all_tests.py"
-  #- "python -m coverage run pyNastran/all_tests_no_gui.py"
-
-  # good
-  #- "coverage run pyNastran/all_tests_no_gui.py"
+  - coverage run pyatmos/utils/test_atmosphere.py
 
 # https://github.com/z4r/python-coveralls
 # Calculate coverage
 after_success:
+  - ls
+    # python-coverage
+    #usage: coveralls [-h] [--coveralls_url COVERALLS_URL] [--base_dir BASE_DIR]
+    #                 [--data_file DATA_FILE] [--config_file CONFIG_FILE]
+    #                 [--coveralls_yaml COVERALLS_YAML] [--ignore-errors]
+    #                 [--merge_file MERGE_FILE] [--nogit] [--skip_ssl_verify]
+  #- coveralls --ignore-errors
+
 #  - coveralls
   - codecov
 #after_success:
