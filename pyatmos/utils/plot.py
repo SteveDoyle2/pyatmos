@@ -1,8 +1,13 @@
+import numpy as np
 import matplotlib
 matplotlib.use('Qt5Agg')
 
 import matplotlib.pyplot as plt
-from pyatmos.utils.atmosphere_vectorized import *
+from pyatmos.utils.atmosphere_vectorized import (
+    atm_pressure_array, atm_temperature_array, atm_dynamic_viscosity_mu_array,
+    atm_kinematic_viscosity_nu_array, atm_equivalent_airspeed_array,
+    sutherland_viscoscity_array,
+)
 
 alt = np.linspace(-100000, 300000., num=1000)
 plt.figure(1)

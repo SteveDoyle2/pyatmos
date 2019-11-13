@@ -43,64 +43,17 @@ sys.path.append(pkg_path)
 
 # ---3rd party modules don't work, so we hack them in --------------------------
 MOCK_MODULES = [
-    #'numpy', 'numpy.linalg','numpy.__version__',
-    #'pandas',
-    #'numpydoc',
-    #'PySide',
     'numpy.distutils.core',
     'numpy.distutils',
     'matplotlib',
     'wx',
-    #'vtk', 'PyQt4', 'PySide',
-    #'docopt',
-    #'numpydoc',
-    #'openmdao',
-    #'openmdao.main.api',
-    #'openmdao.util',
-    #'openmdao.util.doctools',
-    #'openmdao.lib.datatypes.api',
-    #'openmdao.lib.components',
-    #'openmdao.lib.drivers.api',
-    #'openmdao.lib.components.nastran.nastran',
-    #'openmdao.examples.bar3simulation.bar3',
-    #'openmdao.examples.bar3simulation.bar3_wrap_f',
-    #'nastranwrapper.nastran',
-    #'nastranwrapper',
-    #'nastranwrapper.test.nastranwrapper_test_utils',
     ]
-#try:
-    #import scipy
-#except ImportError:
-    #MOCK_MODULES += [
-        #'scipy', 'scipy.linalg', 'scipy.sparse',
-        #'scipy.integrate', 'scipy.interpolate', 'scipy.spatial',
-    #]
-
-#try:
-#    import imageio
-#except ImportError:
-#    MOCK_MODULES += ['imageio']
-#
-#try:
-#    import qtpy
-#except ImportError:
-#    MOCK_MODULES += ['qtpy']
 
 MOCK_MODULES = []
-#MOCK_MODULES += ['qtpy', 'qtpy.QtWidgets', 'qtpy.QtCore', 'qtpy.Qsci', 'qtpy.compat',
-                 #'qtpy.QtGui', 'imageio']
-#MOCK_MODULES += ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
 
-## requires the mock module in Python 2.x
-# pip install mock
-# conda install mock
 load_mock = True
 if load_mock:
-    from six import PY2
-    if PY2:
-        from mock import MagicMock
-    else:
-        from unittest.mock import MagicMock
+    from unittest.mock import MagicMock
 
     class Mock(MagicMock):
         @classmethod
@@ -114,30 +67,6 @@ if load_mock:
 if not on_rtd:
     MOCK_MODULES = []
 
-#if 0:
-    #class Mock(object):
-        #def __init__(self, *args, **kwargs):
-            #pass
-
-        #def __call__(self, *args, **kwargs):
-            #return Mock()
-
-        ##def __len__(self):  # for numpy arrays
-        ##    return 3 #  needs to be an integer
-
-        #@classmethod
-        #def __getattr__(cls, name):
-            #if name in ('__file__', '__path__'):
-                #return '/dev/null'
-            #elif name[0] == name[0].upper():
-                #mockType = type(name, (), {})
-                #mockType.__module__ = __name__
-                #return mockType
-            #else:
-                #return Mock()
-
-#for mod_name in MOCK_MODULES:
-    #sys.modules[mod_name] = Mock()
 
 # -- General configuration -----------------------------------------------------
 
@@ -193,9 +122,9 @@ master_doc = 'index'
 # built documents.
 #
 # The short X.Y version.
-version = u'1.0-dev'
+version = u'1.1-dev'
 # The full version, including alpha/beta/rc tags.
-release = u'1.0-dev'
+release = u'1.1-dev'
 
 # General information about the project.
 project = u'pyatmos' + u' ' + version

@@ -3,24 +3,19 @@ import os
 import sys
 from setuptools import setup, find_packages
 
-imajor, minor1, minor2 = sys.version_info[:3]
 if sys.version_info < (3, 6, 0):  # 3.7.1 used
-    sys.exit('Upgrade your Python to >= 2.7.7 or 3.6+; version=(%s.%s.%s)' % (imajor, minor1, minor2))
+    IMAJOR, MINOR1, MINOR2 = sys.version_info[:3]
+    sys.exit('Upgrade your Python to >= 2.7.7 or 3.6+; version=(%s.%s.%s)' % (IMAJOR, MINOR1, MINOR2))
 
 
 packages = find_packages() # exclude=['ez_setup', 'examples', 'tests'] + exclude_words
 
-#is_dev = (
-    #'TRAVIS' in os.environ or
-    #'APPVEYOR' in os.environ or
-    #'READTHEDOCS' in os.environ
-#)
-is_travis = 'TRAVIS' in os.environ
+IS_TRAVIS = 'TRAVIS' in os.environ
 #is_rtd = 'READTHEDOCS' in os.environ
 
 install_requires = ['numpy']
-is_windows = 'nt' in os.name
-if is_travis and not is_windows:
+IS_WINDOWS = 'nt' in os.name
+if IS_TRAVIS and not IS_WINDOWS:
     #install_requires.append('python-coveralls')
     install_requires.append('codecov')
     #install_requires.append('coverage')
@@ -39,6 +34,7 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         ], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='',
     #'>2.7.6,!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*',
