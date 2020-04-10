@@ -1,20 +1,18 @@
 """defines various internal unit conversio functions"""
-from __future__ import print_function, absolute_import
 
 
-def _feet_to_alt_units(alt_units):
-    # type : (str) -> float
+def _feet_to_alt_units(alt_units: str) -> float:
     """helper method"""
     if alt_units == 'm':
         factor = 0.3048
     elif alt_units == 'ft':
         factor = 1.
     else:
-        raise RuntimeError('alt_units=%r is not valid; use [ft, m]' % alt_units)
+        raise RuntimeError(f'alt_units={alt_units} is not valid; use [ft, m]')
     return factor
 
 
-def _rankine_to_temperature_units(temperature_units):
+def _rankine_to_temperature_units(temperature_units: str) -> float:
     if temperature_units == 'R':
         factor = 1.
     elif temperature_units == 'K':
@@ -24,7 +22,7 @@ def _rankine_to_temperature_units(temperature_units):
     return factor
 
 
-def _psfs_to_dvisc_units(visc_units):
+def _psfs_to_dvisc_units(visc_units: str) -> float:
     """same units as pressure, except multiplied by seconds"""
     if visc_units == '(lbf*s)/ft^2':
         factor = 1.
@@ -34,7 +32,7 @@ def _psfs_to_dvisc_units(visc_units):
         raise RuntimeError('visc_units=%r; not in (lbf*s)/ft^2, (N*s)/m^2, or Pa*s')
     return factor
 
-def _ft2s_to_kvisc_units(alt_units, visc_units):
+def _ft2s_to_kvisc_units(alt_units: str, visc_units: str) -> float:
     if visc_units == 'ft^2/s':
         factor = 1.
     elif visc_units == 'm^2/s':
@@ -43,15 +41,13 @@ def _ft2s_to_kvisc_units(alt_units, visc_units):
         raise NotImplementedError('visc_units=%r' % visc_units)
     return factor
 
-def convert_altitude(alt, alt_units_in, alt_units_out):
-    # type : (float, str, str) -> float
+def convert_altitude(alt: float, alt_units_in: str, alt_units_out: str) -> float:
     """nominal unit is ft"""
     if alt_units_in == alt_units_out:
         return alt
     return alt * _altitude_factor(alt_units_in, alt_units_out)
 
-def _altitude_factor(alt_units_in, alt_units_out):
-    # type : (str, str) -> float
+def _altitude_factor(alt_units_in: str, alt_units_out: str) -> float:
     """helper method for convert_altitude"""
     factor = 1.0
     # units to feet
@@ -75,8 +71,7 @@ def _altitude_factor(alt_units_in, alt_units_out):
         raise RuntimeError('alt_units_out=%r is not valid; use [ft, m, kft]' % alt_units_out)
     return factor
 
-def _reynolds_factor(reynolds_units_in, reynolds_units_out):
-    # type : (str, str) -> float
+def _reynolds_factor(reynolds_units_in: str, reynolds_units_out: str) -> float:
     """helper method"""
     factor = 1.0
     # units to 1/feet
@@ -102,15 +97,13 @@ def _reynolds_factor(reynolds_units_in, reynolds_units_out):
                            '[1/ft, 1/m, 1/in]' % reynolds_units_out)
     return factor
 
-def convert_velocity(velocity, velocity_units_in, velocity_units_out):
-    # type : (float, str, str) -> float
+def convert_velocity(velocity: float, velocity_units_in: str, velocity_units_out: str) -> float:
     """nominal unit is ft/s"""
     if velocity_units_in == velocity_units_out:
         return velocity
     return velocity * _velocity_factor(velocity_units_in, velocity_units_out)
 
-def _velocity_factor(velocity_units_in, velocity_units_out):
-    # type : (str, str) -> float
+def _velocity_factor(velocity_units_in: str, velocity_units_out: str) -> float:
     """helper method for convert_velocity"""
     factor = 1.0
     if velocity_units_in == 'm/s':
@@ -122,8 +115,8 @@ def _velocity_factor(velocity_units_in, velocity_units_out):
     elif velocity_units_in == 'knots':
         factor *= 1.68781
     else:
-        raise RuntimeError('velocity_units_in=%r is not valid; use '
-                           '[ft/s, m/s, in/s, knots]' % velocity_units_in)
+        raise RuntimeError(f'velocity_units_in={velocity_units_in} is not valid; use '
+                           '[ft/s, m/s, in/s, knots]')
 
     if velocity_units_out == 'm/s':
         factor *= 0.3048
@@ -134,19 +127,17 @@ def _velocity_factor(velocity_units_in, velocity_units_out):
     elif velocity_units_out == 'knots':
         factor /= 1.68781
     else:
-        raise RuntimeError('velocity_units_out=%r is not valid; use '
-                           '[ft/s, m/s, in/s, knots]' % velocity_units_out)
+        raise RuntimeError(f'velocity_units_out={velocity_units_out!r} is not valid; use '
+                           '[ft/s, m/s, in/s, knots]')
     return factor
 
-def convert_pressure(pressure, pressure_units_in, pressure_units_out):
-    # type : (float, str, str) -> float
+def convert_pressure(pressure: float, pressure_units_in: str, pressure_units_out: str) -> float:
     """nominal unit is psf"""
     if pressure_units_in == pressure_units_out:
         return pressure
     return pressure * _pressure_factor(pressure_units_in, pressure_units_out)
 
-def _pressure_factor(pressure_units_in, pressure_units_out):
-    # type : (str, str) -> float
+def _pressure_factor(pressure_units_in: str, pressure_units_out: str) -> float:
     """helper method for convert_pressure"""
     factor = 1.0
     if pressure_units_in == 'psf':
@@ -160,8 +151,8 @@ def _pressure_factor(pressure_units_in, pressure_units_out):
     elif pressure_units_in == 'MPa':
         factor *= 20885.43815038
     else:
-        raise RuntimeError('pressure_units_in=%r is not valid; use '
-                           '[psf, psi, Pa, kPa, MPa]' % pressure_units_in)
+        raise RuntimeError(f'pressure_units_in={pressure_units_in!r} is not valid; use '
+                           '[psf, psi, Pa, kPa, MPa]')
 
     if pressure_units_out == 'psf':
         pass
@@ -174,19 +165,17 @@ def _pressure_factor(pressure_units_in, pressure_units_out):
     elif pressure_units_out == 'MPa':
         factor /= 20885.43815038
     else:
-        raise RuntimeError('pressure_units_out=%r is not valid; use '
-                           '[psf, psi, Pa, kPa, MPa]' % pressure_units_out)
+        raise RuntimeError(f'pressure_units_out={pressure_units_out!r} is not valid; use '
+                           '[psf, psi, Pa, kPa, MPa]')
     return factor
 
-def convert_density(density, density_units_in, density_units_out):
-    # type : (float, str, str) -> float
+def convert_density(density: float, density_units_in: str, density_units_out: str) -> float:
     """nominal unit is slug/ft^3"""
     if density_units_in == density_units_out:
         return density
     return density * _density_factor(density_units_in, density_units_out)
 
-def _density_factor(density_units_in, density_units_out):
-    # type : (str, str) -> float
+def _density_factor(density_units_in: str, density_units_out: str) -> float:
     """helper method for convert_density"""
     factor = 1.0
     if density_units_in == 'slug/ft^3':
@@ -196,8 +185,8 @@ def _density_factor(density_units_in, density_units_out):
     elif density_units_in == 'kg/m^3':
         factor /= 515.378818
     else:
-        raise RuntimeError('density_units_in=%r is not valid; use '
-                           '[slug/ft^3, slinch/in^3, kg/m^3]' % density_units_in)
+        raise RuntimeError(f'density_units_in={density_units_in!r} is not valid; use '
+                           '[slug/ft^3, slinch/in^3, kg/m^3]')
 
     # data is now in slug/ft^3
     if density_units_out == 'slug/ft^3':
@@ -207,11 +196,11 @@ def _density_factor(density_units_in, density_units_out):
     elif density_units_out == 'kg/m^3':
         factor *= 515.378818
     else:
-        raise RuntimeError('density_units_out=%r is not valid; use '
-                           '[slug/ft^3, slinch/in^3, kg/m^3]' % density_units_out)
+        raise RuntimeError(f'density_units_out={density_units_out} is not valid; use '
+                           '[slug/ft^3, slinch/in^3, kg/m^3]')
     return factor
 
-def _temperature_factor(temperature_units_in, temperature_units_out):
+def _temperature_factor(temperature_units_in: str, temperature_units_out: str) -> float:
     if temperature_units_in == temperature_units_out:
         factor = 1.
     elif  temperature_units_in == 'R' and temperature_units_out == 'K':
