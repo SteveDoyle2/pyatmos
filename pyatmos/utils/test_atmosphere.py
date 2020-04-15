@@ -20,7 +20,8 @@ from pyatmos.utils.atmosphere_vectorized import (
     atm_dynamic_viscosity_mu_array, atm_kinematic_viscosity_nu_array,
     atm_equivalent_airspeed_array,
 )
-
+from pyatmos.utils.unit_conversion import (
+    convert_altitude, convert_density, convert_pressure, convert_velocity)
 
 class TestAtm(unittest.TestCase):
     """various atmosphere tests"""
@@ -532,6 +533,139 @@ class TestAtm(unittest.TestCase):
             eas_units='m/s')
         del alt, rho, mach, vel, eas
 
+
+class TestUnits(unittest.TestCase):
+    """tests unit_conversion"""
+
+    #def test_convert_length(self):
+        #"""test ``convert_length`` function"""
+        #self.assertAlmostEqual(convert_length(1.0, 'ft', 'ft'), 1.0)
+        #self.assertAlmostEqual(convert_length(1.0, 'ft', 'in'), 12.0)
+        #self.assertAlmostEqual(convert_length(1.0, 'ft', 'm'), 0.3048)
+
+        #self.assertAlmostEqual(convert_length(1.0, 'in', 'in'), 1.0)
+        #self.assertAlmostEqual(convert_length(12.0, 'in', 'ft'), 1.0)
+        #self.assertAlmostEqual(convert_length(12.0, 'in', 'm'), 0.3048)
+
+        #self.assertAlmostEqual(convert_length(1.0, 'm', 'm'), 1.0)
+        #self.assertAlmostEqual(convert_length(0.3048, 'm', 'ft'), 1.0)
+        #self.assertAlmostEqual(convert_length(0.3048, 'm', 'in'), 12.0)
+
+    #def test_convert_area(self):
+        #"""test ``convert_area`` function"""
+        #self.assertAlmostEqual(convert_area(1.0, 'ft^2', 'ft^2'), 1.0)
+        #self.assertAlmostEqual(convert_area(1.0, 'ft^2', 'in^2'), 12.0**2)
+        #self.assertAlmostEqual(convert_area(1.0, 'ft^2', 'm^2'), 0.3048**2)
+
+        #self.assertAlmostEqual(convert_area(1.0, 'in^2', 'in^2'), 1.0)
+        #self.assertAlmostEqual(convert_area(12.0**2, 'in^2', 'ft^2'), 1.0)
+        #self.assertAlmostEqual(convert_area(12.0**2, 'in^2', 'm^2'), 0.3048**2)
+
+        #self.assertAlmostEqual(convert_area(1.0, 'm^2', 'm^2'), 1.0)
+        #self.assertAlmostEqual(convert_area(0.3048**2, 'm^2', 'ft^2'), 1.0)
+        #self.assertAlmostEqual(convert_area(0.3048**2, 'm^2', 'in^2'), 12.0**2)
+
+    def test_convert_pressure(self):
+        """test ``convert_pressure`` function"""
+        self.assertAlmostEqual(convert_pressure(1.0, 'psi', 'psi'), 1.0)
+        self.assertAlmostEqual(convert_pressure(1.0, 'psi', 'psf'), 12.0**2)
+        assert np.allclose(convert_pressure(1.0, 'psi', 'Pa'), 6894.75728)
+        assert np.allclose(convert_pressure(1.0, 'psi', 'kPa'), 6.89475728)
+        assert np.allclose(convert_pressure(1.0, 'psi', 'MPa'), 0.006894756)
+
+        self.assertAlmostEqual(convert_pressure(1.0, 'psf', 'psf'), 1.0)
+        self.assertAlmostEqual(convert_pressure(12.0**2, 'psf', 'psi'), 1.0)
+        assert np.allclose(convert_pressure(12.0**2, 'psf', 'Pa'), 6894.75728)
+        assert np.allclose(convert_pressure(12.0**2, 'psf', 'kPa'), 6.89475728)
+        assert np.allclose(convert_pressure(12.0**2, 'psf', 'MPa'), 0.00689475728)
+
+        self.assertAlmostEqual(convert_pressure(1.0, 'Pa', 'Pa'), 1.0)
+        self.assertAlmostEqual(convert_pressure(1.0, 'Pa', 'kPa'), 0.001)
+        self.assertAlmostEqual(convert_pressure(1.0, 'Pa', 'MPa'), 0.000001)
+        assert np.allclose(convert_pressure(6894.75728, 'Pa', 'psi'), 1.0)
+        assert np.allclose(convert_pressure(6894.75728, 'Pa', 'psf'), 144.0)
+
+        # kPa, MPa
+        self.assertAlmostEqual(convert_pressure(1.0, 'kPa', 'kPa'), 1.0)
+        self.assertAlmostEqual(convert_pressure(1.0, 'kPa', 'MPa'), 0.001)
+        assert np.allclose(convert_pressure(1.0, 'kPa', 'Pa'), 1000.0)
+        assert np.allclose(convert_pressure(6.89475728, 'kPa', 'psi'), 1.0)
+        assert np.allclose(convert_pressure(6.89475728, 'kPa', 'psf'), 144.0)
+
+        self.assertAlmostEqual(convert_pressure(1.0, 'MPa', 'MPa'), 1.0)
+        self.assertAlmostEqual(convert_pressure(1.0, 'MPa', 'kPa'), 1000.)
+        assert np.allclose(convert_pressure(1.0, 'MPa', 'Pa'), 1000000.)
+
+    def test_convert_velocity(self):
+        """test ``convert_velocity`` function"""
+        self.assertAlmostEqual(convert_velocity(1.0, 'ft/s', 'ft/s'), 1.0)
+        self.assertAlmostEqual(convert_velocity(1.0, 'ft/s', 'in/s'), 12.0)
+        self.assertAlmostEqual(convert_velocity(1.0, 'ft/s', 'm/s'), 0.3048)
+        self.assertAlmostEqual(convert_velocity(1.68781, 'ft/s', 'knots'), 1.0)
+
+        self.assertAlmostEqual(convert_velocity(1.0, 'in/s', 'in/s'), 1.0)
+        self.assertAlmostEqual(convert_velocity(12.0, 'in/s', 'ft/s'), 1.0)
+        self.assertAlmostEqual(convert_velocity(12.0, 'in/s', 'm/s'), 0.3048)
+        self.assertAlmostEqual(convert_velocity(1.68781*12, 'in/s', 'knots'), 1.0)
+
+        self.assertAlmostEqual(convert_velocity(1.0, 'm/s', 'm/s'), 1.0)
+        self.assertAlmostEqual(convert_velocity(0.3048, 'm/s', 'ft/s'), 1.0)
+        self.assertAlmostEqual(convert_velocity(0.3048, 'm/s', 'in/s'), 12.0)
+        self.assertAlmostEqual(convert_velocity(1.68781*0.3048, 'm/s', 'knots'), 1.0)
+
+        self.assertAlmostEqual(convert_velocity(1.0, 'knots', 'knots'), 1.0)
+        self.assertAlmostEqual(convert_velocity(1.0, 'knots', 'ft/s'), 1.68781)
+        self.assertAlmostEqual(convert_velocity(1.0, 'knots', 'in/s'), 1.68781*12)
+        self.assertAlmostEqual(convert_velocity(1.0, 'knots', 'm/s'), 1.68781*0.3048)
+
+    #def test_convert_mass(self):
+        #"""test ``convert_mass`` function"""
+        #self.assertAlmostEqual(convert_mass(1.0, 'lbm', 'lbm'), 1.0)
+        #self.assertAlmostEqual(convert_mass(1.0, 'lbm', 'slug'), 1.0/32.174)
+        #assert np.allclose(convert_mass(2.20462, 'lbm', 'kg'), 1.0)
+
+        #self.assertAlmostEqual(convert_mass(1.0, 'kg', 'kg'), 1.0)
+        #assert np.allclose(convert_mass(1.0, 'kg', 'lbm'), 2.20462)
+
+
+        #self.assertAlmostEqual(convert_mass(1.0, 'slug', 'slug'), 1.0)
+        #self.assertAlmostEqual(convert_mass(1.0, 'slug', 'lbm'), 32.174)
+        #self.assertAlmostEqual(convert_mass(12.0, 'slug', 'slinch'), 1.0)
+
+        #self.assertAlmostEqual(convert_mass(1.0, 'slinch', 'slinch'), 1.0)
+        #self.assertAlmostEqual(convert_mass(1.0, 'slinch', 'slug'), 12.0)
+
+    def test_convert_density(self):
+        """test ``convert_density`` function"""
+        self.assertAlmostEqual(convert_density(1.0, 'slug/ft^3', 'slug/ft^3'), 1.0)
+
+        #self.assertAlmostEqual(convert_density(1.0, 'slug/in^3', 'slug/in^3'), 1.0)
+        #self.assertAlmostEqual(convert_density(1.0, 'slinch/ft^3', 'slinch/ft^3'), 1.0)
+
+        self.assertAlmostEqual(convert_density(1.0, 'slinch/in^3', 'slinch/in^3'), 1.0)
+
+        self.assertAlmostEqual(convert_density(1.0, 'kg/m^3', 'kg/m^3'), 1.0)
+
+    #def test_convert_inertia(self):
+        #"""test ``convert_inertia`` function"""
+        ## 12 slug = 1 slinch
+        #self.assertAlmostEqual(convert_inertia(1.0, 'slug-ft^2', 'slug-ft^2'), 1.0)
+        ##self.assertAlmostEqual(convert_inertia(144.0, 'slug-ft^2', 'slinch-in^2'), 12.0)
+        #assert np.allclose(convert_inertia(1.0, 'slinch-in^2', 'kg-m^2'),
+                           #convert_mass(1.0, 'slinch', 'kg') * convert_area(1.0, 'in^2', 'm^2'))
+
+        #assert np.allclose(convert_inertia(1.0, 'slug-ft^2', 'kg-m^2'),
+                           #convert_mass(1.0, 'slug', 'kg') * convert_area(1.0, 'ft^2', 'm^2'))
+
+        #self.assertAlmostEqual(convert_inertia(1.0, 'slinch-in^2', 'slinch-in^2'), 1.0)
+        #self.assertAlmostEqual(convert_inertia(12.0, 'slinch-in^2', 'slug-ft^2'), 1.0)
+        #assert convert_inertia(12.0, 'slinch-in^2', 'slug-ft^2') == convert_mass(12.0, 'slinch', 'slug') * convert_area(1.0, 'in^2', 'ft^2')
+        #assert convert_inertia(1.0, 'slug-ft^2', 'slinch-in^2') == convert_mass(1.0, 'slug', 'slinch') * convert_area(1.0, 'ft^2', 'in^2')
+
+        ##self.assertAlmostEqual(convert_inertia(1.0, 'slinch-in^2', 'kg-m^2'), 0.113) # wrong
+        ##assert convert_inertia(1.0, 'slinch-in^2', 'kg-m^2') == convert_mass(1.0, 'slinch', 'kg') * convert_area(1.0, 'in^2', 'm^2')
+
+        #self.assertAlmostEqual(convert_inertia(1.0, 'kg-m^2', 'kg-m^2'), 1.0)
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()
