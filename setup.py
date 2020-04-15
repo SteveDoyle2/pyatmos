@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 if sys.version_info < (3, 6, 0):  # 3.7.1 used
     IMAJOR, MINOR1, MINOR2 = sys.version_info[:3]
-    sys.exit('Upgrade your Python to >= 2.7.7 or 3.6+; version=(%s.%s.%s)' % (IMAJOR, MINOR1, MINOR2))
+    sys.exit('Upgrade your Python to >= 3.6+; version=(%s.%s.%s)' % (IMAJOR, MINOR1, MINOR2))
 
 
 packages = find_packages() # exclude=['ez_setup', 'examples', 'tests'] + exclude_words
@@ -38,7 +38,7 @@ setup(
         ], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
     keywords='',
     #'>2.7.6,!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*',
-    python_requires='>3.5',
+    python_requires='>=3.6',
     author=pyatmos.__author__,
     author_email=pyatmos.__email__,
     url=pyatmos.__website__,

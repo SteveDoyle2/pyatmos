@@ -42,13 +42,45 @@ def _ft2s_to_kvisc_units(alt_units: str, visc_units: str) -> float:
     return factor
 
 def convert_altitude(alt: float, alt_units_in: str, alt_units_out: str) -> float:
-    """nominal unit is ft"""
+    """
+    Nominal unit is ft.
+
+    Parameters
+    ----------
+    alt : float
+        The altitude in alt_units_in.
+    alt_units_in : str
+        Original alt unit.
+    alt_units_out : str
+        Nominal alt unit.
+
+    Returns
+    -------
+    alt : float
+        Altitude in alt_units_out.
+
+    """
     if alt_units_in == alt_units_out:
         return alt
     return alt * _altitude_factor(alt_units_in, alt_units_out)
 
 def _altitude_factor(alt_units_in: str, alt_units_out: str) -> float:
-    """helper method for convert_altitude"""
+    """
+    Helper method for convert_altitude.
+
+    Parameters
+    ----------
+    alt_units_in : str
+        Original alt unit.
+    alt_units_out : str
+        Nominal alt unit.
+
+    Returns
+    -------
+    factor : float
+        Conversion factor to nominal altitude unit.
+
+    """
     factor = 1.0
     # units to feet
     if alt_units_in == 'm':
@@ -140,9 +172,9 @@ def convert_pressure(pressure: float, pressure_units_in: str, pressure_units_out
 def _pressure_factor(pressure_units_in: str, pressure_units_out: str) -> float:
     """helper method for convert_pressure"""
     factor = 1.0
-    if pressure_units_in == 'psf':
+    if pressure_units_in in ['psf', 'lb/ft^2']:
         pass
-    elif pressure_units_in == 'psi':
+    elif pressure_units_in in ['psi', 'lb/in^2']:
         factor *= 144
     elif pressure_units_in == 'Pa':
         factor /= 47.880172
@@ -154,9 +186,9 @@ def _pressure_factor(pressure_units_in: str, pressure_units_out: str) -> float:
         raise RuntimeError(f'pressure_units_in={pressure_units_in!r} is not valid; use '
                            '[psf, psi, Pa, kPa, MPa]')
 
-    if pressure_units_out == 'psf':
+    if pressure_units_out in ['psf', 'lb/ft^2']:
         pass
-    elif pressure_units_out == 'psi':
+    elif pressure_units_out in ['psi', 'lb/in^2']:
         factor /= 144
     elif pressure_units_out == 'Pa':
         factor *= 47.880172

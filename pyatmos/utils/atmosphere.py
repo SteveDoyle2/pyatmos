@@ -15,21 +15,19 @@ All the default units are in English units because the source equations
 are in English units.
 
 """
-from __future__ import print_function, absolute_import
 import sys
 from math import log, exp
 import numpy as np
 
-from .unitless import speed_of_sound, dynamic_pressure_p_mach
-from .unit_conversion import  (
+from pyatmos.utils.unitless import speed_of_sound, dynamic_pressure_p_mach
+from pyatmos.utils.unit_conversion import  (
     convert_altitude, convert_density, convert_velocity,
     _rankine_to_temperature_units, _psfs_to_dvisc_units, _ft2s_to_kvisc_units,
     _altitude_factor, _pressure_factor, _velocity_factor,
     _reynolds_factor)
 
 
-def atm_temperature(alt, alt_units='ft', temperature_units='R'):
-    # type : (float, str, str) -> float
+def atm_temperature(alt: float, alt_units: str='ft', temperature_units: str='R') -> float:
     r"""
     Freestream Temperature \f$ T_{\infty} \f$
 
@@ -53,6 +51,7 @@ def atm_temperature(alt, alt_units='ft', temperature_units='R'):
         page ~236 - Table C.1\n
         These equations were used because they are valid to 300k ft.\n
         Extrapolation is performed above that.
+
     """
     z = alt * _altitude_factor(alt_units, 'ft')
     if z < 36151.725:
@@ -77,8 +76,7 @@ def atm_temperature(alt, alt_units='ft', temperature_units='R'):
     return T2
 
 
-def atm_pressure(alt, alt_units='ft', pressure_units='psf'):
-    # type : (float, str, str) -> float
+def atm_pressure(alt: float, alt_units: str='ft', pressure_units: str='psf') -> float:
     r"""
     Freestream Pressure \f$ p_{\infty} \f$
 
@@ -102,6 +100,7 @@ def atm_pressure(alt, alt_units='ft', pressure_units='psf'):
         page ~236 - Table C.1\n
         These equations were used b/c they are valid to 300k ft.\n
         Extrapolation is performed above that.\n
+
     """
     alt_ft = convert_altitude(alt, alt_units, 'ft')
     ln_pressure = _log_pressure(alt_ft)
@@ -131,8 +130,7 @@ def _log_pressure(alt_ft):
     return ln_pressure
 
 
-def atm_dynamic_pressure(alt, mach, alt_units='ft', pressure_units='psf'):
-    # type : (float, float, str, str) -> float
+def atm_dynamic_pressure(alt: float, mach: float, alt_units: str='ft', pressure_units: str='psf') -> float:
     r"""
     Freestream Dynamic Pressure  \f$ q_{\infty} \f$
 
@@ -159,6 +157,7 @@ def atm_dynamic_pressure(alt, mach, alt_units='ft', pressure_units='psf'):
     \f[  \large a = \sqrt{\gamma R T}  \f]
     so...
     \f[  \large q = \frac{\gamma}{2} p M^2  \f]
+
     """
     z = alt * _altitude_factor(alt_units, 'ft')
     p = atm_pressure(z)
@@ -169,8 +168,7 @@ def atm_dynamic_pressure(alt, mach, alt_units='ft', pressure_units='psf'):
     return q2
 
 
-def atm_speed_of_sound(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4):
-    # type : (float, str, str, float) -> float
+def atm_speed_of_sound(alt: float, alt_units: str='ft', velocity_units: str='ft/s', gamma: float=1.4) -> float:
     r"""
     Freestream Speed of Sound  \f$ a_{\infty} \f$
 
@@ -182,6 +180,8 @@ def atm_speed_of_sound(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4):
         the altitude units; ft, kft, m
     velocity_units : str; default='ft/s'
         the velocity units; ft/s, m/s, in/s, knots
+    gamma : float, default=1.4
+        Air heat capacity ratio.
 
     Returns
     -------
@@ -194,15 +194,15 @@ def atm_speed_of_sound(alt, alt_units='ft', velocity_units='ft/s', gamma=1.4):
     # converts everything to English units first
     z = alt * _altitude_factor(alt_units, 'ft')
     T = atm_temperature(z)
-    a = speed_of_sound(T, R=1716., gamma=gamma)
+    R = 1716. # 1716.59, dir air, R=287.04 J/kg*K
+    a = speed_of_sound(T, R=R, gamma=gamma)
 
     factor = _velocity_factor('ft/s', velocity_units) # ft/s to m/s
     a2 = a * factor
     return a2
 
 
-def atm_velocity(alt, mach, alt_units='ft', velocity_units='ft/s'):
-    # type : (float, float, str, str) -> float
+def atm_velocity(alt: float, mach: float, alt_units: str='ft', velocity_units: str='ft/s') -> float:
     r"""
     Freestream Velocity  \f$ V_{\infty} \f$
 
@@ -223,14 +223,14 @@ def atm_velocity(alt, mach, alt_units='ft', velocity_units='ft/s'):
         Returns velocity in velocity_units
 
     \f[ \large V = M a \f]
+
     """
     a = atm_speed_of_sound(alt, alt_units=alt_units, velocity_units=velocity_units)
     V = mach * a # units=ft/s or m/s
     return V
 
 
-def atm_equivalent_airspeed(alt, mach, alt_units='ft', eas_units='ft/s'):
-    # type : (float, float, str, str) -> float
+def atm_equivalent_airspeed(alt: float, mach: float, alt_units: str='ft', eas_units: str='ft/s') -> float:
     """
     Freestream equivalent airspeed
 
@@ -266,7 +266,7 @@ def atm_equivalent_airspeed(alt, mach, alt_units='ft', eas_units='ft/s'):
     return eas2
 
 
-def _equivalent_airspeed(mach, p_psf):
+def _equivalent_airspeed(mach: float, p_psf: float) -> float:
     """helper method for atm_equivalent_airspeed"""
     z0 = 0.
     T0 = atm_temperature(z0)
@@ -284,8 +284,7 @@ def _equivalent_airspeed(mach, p_psf):
     return eas
 
 
-def atm_mach(alt, V, alt_units='ft', velocity_units='ft/s'):
-    # type : (float, float, str, str) -> float
+def atm_mach(alt: float, V: float, alt_units: str='ft', velocity_units: str='ft/s') -> float:
     r"""
     Freestream Mach Number
 
@@ -306,14 +305,14 @@ def atm_mach(alt, V, alt_units='ft', velocity_units='ft/s'):
         Mach Number \f$ M \f$
 
     \f[ \large M = \frac{V}{a} \f]
+
     """
     a = atm_speed_of_sound(alt, alt_units=alt_units, velocity_units=velocity_units)
     mach = V / a
     return mach
 
 
-def atm_density(alt, R=1716., alt_units='ft', density_units='slug/ft^3'):
-    # type : (float, float, str, str) -> float
+def atm_density(alt: float, R: float=1716., alt_units: str='ft', density_units: str='slug/ft^3') -> float:
     r"""
     Freestream Density   \f$ \rho_{\infty} \f$
 
@@ -335,6 +334,7 @@ def atm_density(alt, R=1716., alt_units='ft', density_units='slug/ft^3'):
 
     Based on the formula P=pRT
     \f[ \large \rho=\frac{p}{R T} \f]
+
     """
     z = convert_altitude(alt, alt_units, 'ft')
     #z = alt * _altitude_factor(alt_units, 'ft')
@@ -346,8 +346,7 @@ def atm_density(alt, R=1716., alt_units='ft', density_units='slug/ft^3'):
     return rho2
 
 
-def atm_kinematic_viscosity_nu(alt, alt_units='ft', visc_units='ft^2/s'):
-    # type : (float, str, str) -> float
+def atm_kinematic_viscosity_nu(alt: float, alt_units: str='ft', visc_units: str='ft^2/s') -> float:
     r"""
     Freestream Kinematic Viscosity \f$ \nu_{\infty} \f$
 
@@ -378,8 +377,7 @@ def atm_kinematic_viscosity_nu(alt, alt_units='ft', visc_units='ft^2/s'):
     return nu * factor
 
 
-def atm_dynamic_viscosity_mu(alt, alt_units='ft', visc_units='(lbf*s)/ft^2'):
-    # type : (float, str, str) -> float
+def atm_dynamic_viscosity_mu(alt: float, alt_units: str='ft', visc_units: str='(lbf*s)/ft^2') -> float:
     r"""
     Freestream Dynamic Viscosity  \f$ \mu_{\infty} \f$
 
@@ -407,8 +405,7 @@ def atm_dynamic_viscosity_mu(alt, alt_units='ft', visc_units='(lbf*s)/ft^2'):
     return mu * factor
 
 
-def atm_unit_reynolds_number2(alt, mach, alt_units='ft', reynolds_units='1/ft'):
-    # type : (float, float, str, str) -> float
+def atm_unit_reynolds_number2(alt: float, mach: float, alt_units: str='ft', reynolds_units: str='1/ft') -> float:
     r"""
     Returns the Reynolds Number per unit length.
 
@@ -433,6 +430,7 @@ def atm_unit_reynolds_number2(alt, mach, alt_units='ft', reynolds_units='1/ft'):
     .. note ::
         this version of Reynolds number directly caculates the base quantities, so multiple
         calls to atm_press and atm_temp are not made
+
     """
     z = alt * _altitude_factor(alt_units, 'ft')
     gamma = 1.4
@@ -452,8 +450,7 @@ def atm_unit_reynolds_number2(alt, mach, alt_units='ft', reynolds_units='1/ft'):
     return ReL
 
 
-def atm_unit_reynolds_number(alt, mach, alt_units='ft', reynolds_units='1/ft'):
-    # type : (float, float, str, str) -> float
+def atm_unit_reynolds_number(alt: float, mach: float, alt_units: str='ft', reynolds_units: str='1/ft') -> float:
     r"""
     Returns the Reynolds Number per unit length.
 
@@ -475,6 +472,7 @@ def atm_unit_reynolds_number(alt, mach, alt_units='ft', reynolds_units='1/ft'):
 
     \f[ \large Re   = \frac{ \rho V L}{\mu} \f]
     \f[ \large Re_L = \frac{ \rho V  }{\mu} \f]
+
     """
     z = alt * _altitude_factor(alt_units, 'ft')
     rho = atm_density(z)
@@ -486,8 +484,7 @@ def atm_unit_reynolds_number(alt, mach, alt_units='ft', reynolds_units='1/ft'):
     return ReL
 
 
-def sutherland_viscoscity(T):
-    # type: (float) -> float
+def sutherland_viscoscity(T: float) -> float:
     r"""
     Helper function that calculates the dynamic viscosity \f$ \mu \f$ of air at
     a given temperature.
@@ -509,6 +506,7 @@ def sutherland_viscoscity(T):
     From Aerodynamics for Engineers 4th Edition\n
     John J. Bertin 2002\n
     page 6 eq 1.5b\n
+
     """
     if T < 225.: # Rankine
         viscosity = 8.0382436E-10 * T
